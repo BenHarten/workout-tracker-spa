@@ -6,6 +6,7 @@ import { RecordsPage } from "./pages/RecordsPage";
 import { TemplatesPage } from "./pages/TemplatesPage";
 import { SettingsModal } from "./components/settings/SettingsModal";
 import { SyncModal } from "./components/sync/SyncModal";
+import { PasscodeGate } from "./components/auth/PasscodeGate";
 import { useApp } from "./context/AppContext";
 
 function ModalContainer() {
@@ -32,10 +33,12 @@ function AppInner() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <HashRouter>
-        <AppInner />
-      </HashRouter>
-    </AppProvider>
+    <PasscodeGate>
+      <AppProvider>
+        <HashRouter>
+          <AppInner />
+        </HashRouter>
+      </AppProvider>
+    </PasscodeGate>
   );
 }
