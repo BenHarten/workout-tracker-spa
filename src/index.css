@@ -406,6 +406,7 @@ body::after {
 
 .exercise-table {
   width: 100%;
+  max-width: 400px;
   border-collapse: collapse;
 }
 
@@ -439,12 +440,14 @@ body::after {
 .exercise-table thead th:nth-child(2),
 .exercise-table thead th:nth-child(3) {
   text-align: right;
+  width: 80px;
 }
 
 .exercise-table .set-row td {
   padding: 3px 0;
   font-size: var(--text-sm);
   color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 .set-label {
