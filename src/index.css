@@ -919,15 +919,19 @@ body::after {
 
   .ex-card {
     padding: var(--space-md);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
   }
 
   .ex-card-name {
-    margin-bottom: var(--space-sm);
+    margin-bottom: 0;
   }
 
   .ex-card-table {
     width: auto;
-    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .modal-header {
