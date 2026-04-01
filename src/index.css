@@ -45,10 +45,10 @@
   --font-display: 'Bebas Neue', system-ui, sans-serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
 
-  --text-xs: 0.7rem;
-  --text-sm: 0.8rem;
-  --text-base: 0.9rem;
-  --text-lg: 1.05rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.85rem;
+  --text-base: 0.95rem;
+  --text-lg: 1.1rem;
   --text-xl: 1.3rem;
   --text-2xl: 1.8rem;
   --text-3xl: 2.4rem;
