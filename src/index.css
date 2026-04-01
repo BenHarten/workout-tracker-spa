@@ -443,8 +443,9 @@ body::after {
 }
 
 .ex-card-table {
-  width: 100%;
+  width: auto;
   border-collapse: collapse;
+  margin-left: auto;
 }
 
 .ex-card-table thead th {
@@ -460,10 +461,13 @@ body::after {
 .ex-card-table thead th:nth-child(2) {
   text-align: right;
   padding-right: var(--space-lg);
+  min-width: 50px;
 }
 
 .ex-card-table thead th:nth-child(3) {
   text-align: right;
+  min-width: 80px;
+  white-space: nowrap;
 }
 
 .ex-card-table tbody td {
@@ -476,10 +480,13 @@ body::after {
 .ex-card-table tbody td:nth-child(2) {
   text-align: right;
   padding-right: var(--space-lg);
+  min-width: 50px;
 }
 
 .ex-card-table tbody td:nth-child(3) {
   text-align: right;
+  min-width: 80px;
+  white-space: nowrap;
 }
 
 .ex-card-table .set-label {
