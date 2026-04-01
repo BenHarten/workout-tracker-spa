@@ -457,7 +457,11 @@ body::after {
   font-weight: 400;
 }
 
-.ex-card-table thead th:nth-child(2),
+.ex-card-table thead th:nth-child(2) {
+  text-align: right;
+  padding-right: var(--space-lg);
+}
+
 .ex-card-table thead th:nth-child(3) {
   text-align: right;
 }
@@ -469,7 +473,11 @@ body::after {
   font-variant-numeric: tabular-nums;
 }
 
-.ex-card-table tbody td:nth-child(2),
+.ex-card-table tbody td:nth-child(2) {
+  text-align: right;
+  padding-right: var(--space-lg);
+}
+
 .ex-card-table tbody td:nth-child(3) {
   text-align: right;
 }
@@ -479,7 +487,7 @@ body::after {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  width: 50px;
+  white-space: nowrap;
 }
 
 /* ── Template Detail ─────────────────────────────────── */
