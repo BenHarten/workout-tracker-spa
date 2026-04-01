@@ -1,4 +1,5 @@
 import type { TrainingRecord, SpeedianceExercise, FinishedRep } from "../../types";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   record: TrainingRecord;
@@ -36,12 +37,18 @@ function extractSets(ex: SpeedianceExercise): SetData[] {
 }
 
 function ExerciseCard({ ex }: { ex: SpeedianceExercise }) {
+  const navigate = useNavigate();
   const name = ex.actionName || ex.actionLibraryName || "Unknown";
   const sets = extractSets(ex);
 
+  const handleNameClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/progress/${encodeURIComponent(name.toLowerCase())}`);
+  };
+
   return (
     <div className="ex-card">
-      <div className="ex-card-name">{name}</div>
+      <div className="ex-card-name ex-card-name-link" onClick={handleNameClick}>{name}</div>
       {sets.length > 0 ? (
         <table className="ex-card-table">
           <thead>

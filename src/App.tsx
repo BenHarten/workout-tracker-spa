@@ -4,6 +4,8 @@ import { Header } from "./components/layout/Header";
 import { Toast } from "./components/layout/Toast";
 import { RecordsPage } from "./pages/RecordsPage";
 import { TemplatesPage } from "./pages/TemplatesPage";
+import { ProgressPage } from "./pages/ProgressPage";
+import { ExerciseDetailPage } from "./pages/ExerciseDetailPage";
 import { SettingsModal } from "./components/settings/SettingsModal";
 import { SyncModal } from "./components/sync/SyncModal";
 import { PasscodeGate } from "./components/auth/PasscodeGate";
@@ -23,6 +25,8 @@ function AppInner() {
       <Routes>
         <Route path="/" element={<RecordsPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/progress/:exerciseName" element={<ExerciseDetailPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <ModalContainer />

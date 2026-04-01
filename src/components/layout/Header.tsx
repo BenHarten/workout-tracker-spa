@@ -13,6 +13,9 @@ export function Header() {
         <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
           Records
         </NavLink>
+        <NavLink to="/progress" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+          Progress
+        </NavLink>
         <NavLink to="/templates" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
           Templates
         </NavLink>
