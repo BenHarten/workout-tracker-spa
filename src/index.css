@@ -400,68 +400,86 @@ body::after {
   }
   to {
     opacity: 1;
-    max-height: 2000px;
+    max-height: 5000px;
   }
 }
 
-.exercise-table {
-  width: 100%;
-  max-width: 400px;
-  border-collapse: collapse;
+/* ── Exercise Grid ───────────────────────────────────── */
+
+.ex-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
 }
 
-.exercise-table .ex-header td {
-  padding: var(--space-sm) 0;
-  padding-top: var(--space-md);
+@media (min-width: 768px) {
+  .ex-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
 }
 
-.exercise-table .ex-header:first-child td {
-  padding-top: var(--space-xs);
+@media (min-width: 1100px) {
+  .ex-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.ex-name {
+.ex-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.ex-card-name {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  line-height: 1.2;
 }
 
-.exercise-table thead th {
+.ex-card-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ex-card-table thead th {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-faint);
   text-align: left;
-  padding: var(--space-xs) 0;
+  padding: 0 0 var(--space-xs) 0;
   font-weight: 400;
 }
 
-.exercise-table thead th:nth-child(2),
-.exercise-table thead th:nth-child(3) {
+.ex-card-table thead th:nth-child(2),
+.ex-card-table thead th:nth-child(3) {
   text-align: right;
-  width: 80px;
 }
 
-.exercise-table .set-row td {
-  padding: 3px 0;
+.ex-card-table tbody td {
+  padding: 2px 0;
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
 }
 
-.set-label {
+.ex-card-table tbody td:nth-child(2),
+.ex-card-table tbody td:nth-child(3) {
+  text-align: right;
+}
+
+.ex-card-table .set-label {
   color: var(--text-muted);
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  width: 60px;
-}
-
-.exercise-table .set-row td:nth-child(2),
-.exercise-table .set-row td:nth-child(3) {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+  width: 50px;
 }
 
 /* ── Template Detail ─────────────────────────────────── */

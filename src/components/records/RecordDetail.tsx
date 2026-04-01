@@ -4,72 +4,80 @@ interface Props {
   record: TrainingRecord;
 }
 
-function renderSet(rep: FinishedRep, index: number) {
-  const hasWeight =
-    rep.trainingInfoDetail?.weights && rep.trainingInfoDetail.weights.length > 0;
-  const isTime = rep.finishedCount === 0 && !hasWeight;
+interface SetData {
+  reps: string;
+  weight: string;
+}
+
+function extractSets(ex: SpeedianceExercise): SetData[] {
+  if (ex.setTrainingInfoList && ex.setTrainingInfoList.length > 0) {
+    return ex.setTrainingInfoList.map((s) => ({
+      reps: String(s.reps),
+      weight: `${s.weight} kg`,
+    }));
+  }
+
+  if (ex.finishedReps && ex.finishedReps.length > 0) {
+    return ex.finishedReps.map((rep: FinishedRep) => {
+      const hasWeight =
+        rep.trainingInfoDetail?.weights && rep.trainingInfoDetail.weights.length > 0;
+      const isTime = rep.finishedCount === 0 && !hasWeight;
+      if (isTime) {
+        return { reps: `${rep.time}s`, weight: "\u2014" };
+      }
+      return {
+        reps: String(rep.finishedCount),
+        weight: `${hasWeight ? rep.trainingInfoDetail!.weights![0] : 0} kg`,
+      };
+    });
+  }
+
+  return [];
+}
+
+function ExerciseCard({ ex }: { ex: SpeedianceExercise }) {
+  const name = ex.actionName || ex.actionLibraryName || "Unknown";
+  const sets = extractSets(ex);
 
   return (
-    <tr className="set-row" key={index}>
-      <td className="set-label">Set {index + 1}</td>
-      {isTime ? (
-        <>
-          <td>{rep.time}s</td>
-          <td>&mdash;</td>
-        </>
+    <div className="ex-card">
+      <div className="ex-card-name">{name}</div>
+      {sets.length > 0 ? (
+        <table className="ex-card-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Reps</th>
+              <th>Weight</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sets.map((s, j) => (
+              <tr key={j}>
+                <td className="set-label">Set {j + 1}</td>
+                <td>{s.reps}</td>
+                <td>{s.weight}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : (
-        <>
-          <td>{rep.finishedCount}</td>
-          <td>{hasWeight ? rep.trainingInfoDetail!.weights![0] : 0} kg</td>
-        </>
+        <span className="text-muted" style={{ fontSize: "var(--text-xs)" }}>&mdash;</span>
       )}
-    </tr>
+    </div>
   );
 }
 
-function renderExercisesFromList(exercises: SpeedianceExercise[]) {
-  return exercises.map((ex, i) => {
-    const name = ex.actionName || ex.actionLibraryName || "Unknown";
-
-    if (ex.setTrainingInfoList && ex.setTrainingInfoList.length > 0) {
-      return (
-        <tbody key={i}>
-          <tr className="ex-header">
-            <td className="ex-name" colSpan={3}>{name}</td>
-          </tr>
-          {ex.setTrainingInfoList.map((s, j) => (
-            <tr className="set-row" key={j}>
-              <td className="set-label">Set {j + 1}</td>
-              <td>{s.reps}</td>
-              <td>{s.weight} kg</td>
-            </tr>
-          ))}
-        </tbody>
-      );
-    }
-
-    if (ex.finishedReps && ex.finishedReps.length > 0) {
-      return (
-        <tbody key={i}>
-          <tr className="ex-header">
-            <td className="ex-name" colSpan={3}>{name}</td>
-          </tr>
-          {ex.finishedReps.map((rep, j) => renderSet(rep, j))}
-        </tbody>
-      );
-    }
-
-    return (
-      <tbody key={i}>
-        <tr className="ex-header">
-          <td className="ex-name" colSpan={3}>{name}</td>
-        </tr>
-        <tr className="set-row">
-          <td className="set-label" colSpan={3}>&mdash;</td>
-        </tr>
-      </tbody>
-    );
-  });
+function ExerciseGrid({ exercises }: { exercises: SpeedianceExercise[] }) {
+  return (
+    <div className="detail-panel">
+      <div className="ex-grid">
+        {exercises.map((ex, i) => (
+          <ExerciseCard key={i} ex={ex} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export function RecordDetail({ record }: Props) {
@@ -93,40 +101,12 @@ export function RecordDetail({ record }: Props) {
     );
   }
 
-  // Case 1: detail has actionTrainingInfoList (FitNote or some API records)
   if ("actionTrainingInfoList" in detail && detail.actionTrainingInfoList) {
-    return (
-      <div className="detail-panel">
-        <table className="exercise-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Reps</th>
-              <th>Weight</th>
-            </tr>
-          </thead>
-          {renderExercisesFromList(detail.actionTrainingInfoList as SpeedianceExercise[])}
-        </table>
-      </div>
-    );
+    return <ExerciseGrid exercises={detail.actionTrainingInfoList as SpeedianceExercise[]} />;
   }
 
-  // Case 2: detail is an array (Speediance custom/plan records)
   if (Array.isArray(detail)) {
-    return (
-      <div className="detail-panel">
-        <table className="exercise-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Reps</th>
-              <th>Weight</th>
-            </tr>
-          </thead>
-          {renderExercisesFromList(detail)}
-        </table>
-      </div>
-    );
+    return <ExerciseGrid exercises={detail} />;
   }
 
   return (
