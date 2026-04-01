@@ -1,0 +1,41 @@
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AppProvider } from "./context/AppContext";
+import { Header } from "./components/layout/Header";
+import { Toast } from "./components/layout/Toast";
+import { RecordsPage } from "./pages/RecordsPage";
+import { TemplatesPage } from "./pages/TemplatesPage";
+import { SettingsModal } from "./components/settings/SettingsModal";
+import { SyncModal } from "./components/sync/SyncModal";
+import { useApp } from "./context/AppContext";
+
+function ModalContainer() {
+  const { activeModal } = useApp();
+  if (activeModal === "settings") return <SettingsModal />;
+  if (activeModal === "sync") return <SyncModal />;
+  return null;
+}
+
+function AppInner() {
+  return (
+    <>
+      <Header />
+      <Routes>
+        <Route path="/" element={<RecordsPage />} />
+        <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <ModalContainer />
+      <Toast />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <HashRouter>
+        <AppInner />
+      </HashRouter>
+    </AppProvider>
+  );
+}
