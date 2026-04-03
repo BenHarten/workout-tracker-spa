@@ -317,6 +317,10 @@ body::after {
   gap: var(--space-sm);
 }
 
+.card-top > div:first-child {
+  min-width: 0;
+}
+
 .card-name {
   font-family: var(--font-body);
   font-size: var(--text-base);

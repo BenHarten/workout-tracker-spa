@@ -2,6 +2,7 @@ import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
 import { Header } from "./components/layout/Header";
 import { BottomNav } from "./components/layout/BottomNav";
+import { ScrollToTop } from "./components/layout/ScrollToTop";
 import { Toast } from "./components/layout/Toast";
 import { RecordsPage } from "./pages/RecordsPage";
 import { TemplatesPage } from "./pages/TemplatesPage";
@@ -22,6 +23,7 @@ function ModalContainer() {
 function AppInner() {
   return (
     <>
+      <ScrollToTop />
       <Header />
       <Routes>
         <Route path="/" element={<RecordsPage />} />
