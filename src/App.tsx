@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
 import { Header } from "./components/layout/Header";
+import { BottomNav } from "./components/layout/BottomNav";
 import { Toast } from "./components/layout/Toast";
 import { RecordsPage } from "./pages/RecordsPage";
 import { TemplatesPage } from "./pages/TemplatesPage";
@@ -31,6 +32,7 @@ function AppInner() {
       </Routes>
       <ModalContainer />
       <Toast />
+      <BottomNav />
     </>
   );
 }

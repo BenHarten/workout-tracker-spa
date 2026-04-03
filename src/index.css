@@ -71,6 +71,7 @@ body {
   color: var(--text-primary);
   min-height: 100dvh;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 /* Subtle grain overlay */
@@ -175,6 +176,63 @@ body::after {
 .icon-btn svg {
   width: 18px;
   height: 18px;
+}
+
+/* ── Bottom Nav (mobile) ─────────────────────────────── */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 0 8px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+  transition: color 0.2s;
+}
+
+.bottom-nav-tab svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.75;
+}
+
+.bottom-nav-tab.active {
+  color: var(--accent);
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .header-nav .nav-link,
+  .header-nav .nav-divider {
+    display: none;
+  }
+
+  .page {
+    padding-bottom: 80px;
+  }
 }
 
 /* ── Page Layout ─────────────────────────────────────── */
