@@ -1,4 +1,4 @@
-import type { Config } from "../types";
+import type { Config, ExerciseLibraryStore, ExerciseGroup } from "../types";
 
 export class AuthError extends Error {
   constructor(message: string) {
@@ -175,5 +175,80 @@ export class SpeedianceClient {
     const url = `${this.baseUrl}/api/app/v3/customTrainingTemplate/detailByCode?code=${code}`;
     const body = await this.request("GET", url, { headers: this.getHeaders() });
     return (body.data ?? null) as Record<string, unknown> | null;
+  }
+
+  async fetchExerciseLibrary(deviceType: number): Promise<ExerciseLibraryStore> {
+    // 1. Tabs
+    const tabsBody = await this.request(
+      "GET",
+      `${this.baseUrl}/api/app/actionLibraryTab/list?deviceType=${deviceType}`,
+      { headers: this.getHeaders() },
+    );
+    const tabs = (tabsBody.data ?? []) as Array<{ id: number; name: string }>;
+
+    // 2. Exercises per tab (deduplicated by id)
+    const exerciseMap = new Map<number, Record<string, unknown>>();
+    for (const tab of tabs) {
+      const groupsBody = await this.request(
+        "GET",
+        `${this.baseUrl}/api/app/actionLibraryGroup/trainingPartGroup?tabId=${tab.id}&deviceTypeList=${deviceType}`,
+        { headers: this.getHeaders() },
+      );
+      const muscleGroups = (groupsBody.data ?? []) as Array<{
+        actionLibraryGroupList?: Record<string, unknown>[];
+      }>;
+      for (const mg of muscleGroups) {
+        for (const ex of mg.actionLibraryGroupList ?? []) {
+          const id = ex.id as number;
+          if (!exerciseMap.has(id)) {
+            exerciseMap.set(id, { ...ex, category_id: tab.id, category_name: tab.name });
+          }
+        }
+      }
+    }
+
+    // 3. Batch details (actionLibraryList, isUnilateral)
+    const ids = Array.from(exerciseMap.keys());
+    const query = ids.map((id) => `ids=${id}`).join("&");
+    const detailBody = await this.request(
+      "GET",
+      `${this.baseUrl}/api/app/actionLibraryGroup/list?${query}`,
+      { headers: this.getHeaders() },
+    );
+    const details = (detailBody.data ?? []) as Record<string, unknown>[];
+
+    const exercises: ExerciseGroup[] = details.map((d) => {
+      const base = exerciseMap.get(d.id as number) ?? {};
+      return {
+        ...d,
+        id: d.id as number,
+        name: String(d.name ?? base.name ?? "Unknown"),
+        category_id: base.category_id as number,
+        category_name: String(base.category_name ?? ""),
+        isUnilateral: Boolean(d.isUnilateral),
+        actionLibraryList: (d.actionLibraryList ?? []) as Array<{ id: number }>,
+      } as ExerciseGroup;
+    });
+
+    return {
+      device_type: deviceType,
+      fetched_at: new Date().toISOString(),
+      tabs,
+      exercises,
+    };
+  }
+
+  async saveTemplate(payload: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const body = await this.request("POST", `${this.baseUrl}/api/app/v2/customTrainingTemplate`, {
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
+    });
+    return (body.data ?? {}) as Record<string, unknown>;
+  }
+
+  async deleteTemplate(id: number): Promise<void> {
+    await this.request("DELETE", `${this.baseUrl}/api/app/customTrainingTemplate?ids=${id}`, {
+      headers: this.getHeaders(),
+    });
   }
 }
