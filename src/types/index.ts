@@ -126,3 +126,50 @@ export interface ToastState {
   type: "success" | "error" | "info";
   visible: boolean;
 }
+
+// ── Exercise Library ────────────────────────────────────────────
+
+export interface ExerciseGroup {
+  id: number;
+  name: string;
+  category_id: number;
+  category_name: string;
+  isUnilateral: boolean;
+  actionLibraryList: Array<{ id: number; [key: string]: unknown }>;
+  [key: string]: unknown;
+}
+
+export interface ExerciseLibraryStore {
+  device_type: number;
+  fetched_at: string;
+  tabs: Array<{ id: number; name: string }>;
+  exercises: ExerciseGroup[];
+}
+
+// ── Template Editor ─────────────────────────────────────────────
+
+export interface EditorSet {
+  reps: number;
+  weight: number;
+  rest: number;
+  mode: number;
+  unit: "reps" | "sec";
+}
+
+export interface EditorExercise {
+  groupId: number;
+  actionLibraryId: number;
+  presetId: -1 | 1 | 3 | 5;
+  isUnilateral: boolean;
+  name: string;
+  sets: EditorSet[];
+}
+
+export const PRESET_RULES = {
+  "-1": { label: "KG", step: 0.5, defW: 10, minW: 3.5, maxW: 100, defR: 10, minR: 1,  maxR: 99, defRest: 60 },
+  "1":  { label: "RM", step: 1,   defW: 13, minW: 9,   maxW: 13,  defR: 12, minR: 8,  maxR: 12, defRest: 60 },
+  "3":  { label: "RM", step: 1,   defW: 17, minW: 15,  maxW: 20,  defR: 15, minR: 13, maxR: 20, defRest: 45 },
+  "5":  { label: "RM", step: 1,   defW: 7,  minW: 4,   maxW: 9,   defR: 6,  minR: 2,  maxR: 8,  defRest: 90 },
+} as const;
+
+export type PresetId = keyof typeof PRESET_RULES;
