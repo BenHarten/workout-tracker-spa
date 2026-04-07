@@ -6,6 +6,7 @@ import { ScrollToTop } from "./components/layout/ScrollToTop";
 import { Toast } from "./components/layout/Toast";
 import { RecordsPage } from "./pages/RecordsPage";
 import { TemplatesPage } from "./pages/TemplatesPage";
+import { TemplateEditorPage } from "./pages/TemplateEditorPage";
 import { ProgressPage } from "./pages/ProgressPage";
 import { ExerciseDetailPage } from "./pages/ExerciseDetailPage";
 import { SettingsModal } from "./components/settings/SettingsModal";
@@ -28,6 +29,8 @@ function AppInner() {
       <Routes>
         <Route path="/" element={<RecordsPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/templates/new" element={<TemplateEditorPage />} />
+        <Route path="/templates/edit/:code" element={<TemplateEditorPage />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/progress/:exerciseName" element={<ExerciseDetailPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
