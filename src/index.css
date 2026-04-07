@@ -248,6 +248,8 @@ body::after {
 .status-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--space-sm);
   margin-bottom: var(--space-md);
   font-size: var(--text-sm);
@@ -1447,4 +1449,302 @@ body::after {
 .calendar-detail-divider {
   border-top: 1px solid var(--border-subtle);
   margin: var(--space-md) 0;
+}
+
+/* ── Template Actions ─────────────────────────────────────── */
+
+.tpl-actions {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.tpl-action-btn {
+  padding: var(--space-xs) var(--space-sm);
+  line-height: 1;
+}
+
+.tpl-confirm-delete {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.tpl-confirm-text {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* ── Template Editor Page ─────────────────────────────────── */
+
+.editor-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding-bottom: 80px;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.editor-name-input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.editor-device-select {
+  width: auto;
+}
+
+.editor-exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.editor-exercise {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.editor-exercise-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  flex-wrap: wrap;
+  background: var(--bg-elevated);
+}
+
+.editor-drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  user-select: none;
+}
+
+.editor-exercise-name {
+  flex: 1;
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  min-width: 80px;
+}
+
+.editor-badge {
+  font-size: var(--text-xs);
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+}
+
+.editor-preset-select {
+  width: auto;
+  font-size: var(--text-xs);
+  padding: 4px 8px;
+}
+
+.editor-action-btn {
+  padding: 2px var(--space-sm);
+  font-size: var(--text-xs);
+}
+
+.editor-remove-btn {
+  color: var(--danger);
+}
+
+.editor-set-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.editor-set-table th {
+  padding: var(--space-xs) var(--space-sm);
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: var(--text-xs);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.editor-set-table td {
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.editor-set-table tr:last-child td {
+  border-bottom: none;
+}
+
+.editor-set-num {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  width: 24px;
+}
+
+.editor-set-input {
+  width: 70px;
+  padding: 4px 6px;
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.editor-add-exercise-btn {
+  align-self: flex-start;
+  margin-top: var(--space-sm);
+}
+
+/* ── Exercise Library Browser ─────────────────────────────── */
+
+.library-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: stretch;
+}
+
+@media (min-width: 768px) {
+  .library-overlay {
+    align-items: stretch;
+    justify-content: flex-end;
+  }
+}
+
+.library-panel {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .library-panel {
+    border-top: none;
+    border-left: 1px solid var(--border);
+    width: 380px;
+    max-height: 100vh;
+  }
+}
+
+.library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.library-title {
+  font-weight: 600;
+  font-size: var(--text-lg);
+}
+
+.library-search-row {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.library-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg) var(--space-md);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.library-tabs {
+  display: flex;
+  overflow-x: auto;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+  scrollbar-width: none;
+}
+
+.library-tabs::-webkit-scrollbar { display: none; }
+
+.library-tab {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius);
+  padding: 4px 12px;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.library-tab.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
+.library-tab:hover:not(.active) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.library-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.library-exercise-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+  gap: var(--space-sm);
+}
+
+.library-exercise-row:hover {
+  background: var(--bg-hover);
+}
+
+.library-exercise-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.library-exercise-name {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.library-exercise-meta {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.library-add-btn {
+  padding: 4px 12px;
+  font-size: var(--text-xs);
+  flex-shrink: 0;
 }
