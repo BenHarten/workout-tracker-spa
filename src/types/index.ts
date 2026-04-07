@@ -134,9 +134,29 @@ export interface ExerciseGroup {
   name: string;
   category_id: number;
   category_name: string;
+  actionLibraryList: Array<{ id: number }>;
+  mainMuscleGroupName: string;
+  accessories: string;
+  // isUnilateral is NOT cached — only available from the detail endpoint
+}
+
+export interface ExerciseStep {
+  context: string;
+  img: string;
+}
+
+export interface ExerciseVariant {
+  id: number;
+  videoPath?: string;
+  leftVideo?: string;
+  rightVideo?: string;
+}
+
+export interface ExerciseDetail {
+  id: number;
   isUnilateral: boolean;
-  actionLibraryList: Array<{ id: number; [key: string]: unknown }>;
-  [key: string]: unknown;
+  showDetails: ExerciseStep[];
+  actionLibraryList: ExerciseVariant[];
 }
 
 export interface ExerciseLibraryStore {

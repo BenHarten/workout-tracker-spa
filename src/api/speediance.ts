@@ -1,4 +1,4 @@
-import type { Config, ExerciseLibraryStore, ExerciseGroup } from "../types";
+import type { Config, ExerciseLibraryStore, ExerciseGroup, ExerciseDetail, ExerciseStep } from "../types";
 
 export class AuthError extends Error {
   constructor(message: string) {
@@ -228,15 +228,16 @@ export class SpeedianceClient {
 
     const exercises: ExerciseGroup[] = details.map((d) => {
       const base = exerciseMap.get(d.id as number) ?? {};
+      const rawVariants = (d.actionLibraryList ?? []) as Array<{ id: number }>;
       return {
-        ...d,
         id: d.id as number,
         name: String(d.name ?? base.name ?? "Unknown"),
         category_id: base.category_id as number,
         category_name: String(base.category_name ?? ""),
-        isUnilateral: Boolean(d.isUnilateral),
-        actionLibraryList: (d.actionLibraryList ?? []) as Array<{ id: number }>,
-      } as ExerciseGroup;
+        actionLibraryList: rawVariants.slice(0, 1).map((v) => ({ id: v.id })),
+        mainMuscleGroupName: String(d.mainMuscleGroupName ?? ""),
+        accessories: String(d.accessories ?? ""),
+      };
     });
 
     return {
@@ -244,6 +245,39 @@ export class SpeedianceClient {
       fetched_at: new Date().toISOString(),
       tabs,
       exercises,
+    };
+  }
+
+  async getExerciseDetail(groupId: number): Promise<ExerciseDetail> {
+    const body = await this.request(
+      "GET",
+      `${this.baseUrl}/api/app/actionLibraryGroup/${groupId}?isDisplay=1`,
+      { headers: this.getHeaders() },
+    );
+    const d = (body.data ?? {}) as Record<string, unknown>;
+
+    let showDetails: ExerciseStep[] = [];
+    try {
+      showDetails = JSON.parse((d.showDetails as string) ?? "[]") as ExerciseStep[];
+    } catch { /* ignore parse errors */ }
+
+    const rawVariants = (d.actionLibraryList ?? []) as Array<{
+      id: number;
+      videoPath?: string;
+      leftVideo?: string;
+      rightVideo?: string;
+    }>;
+
+    return {
+      id: groupId,
+      isUnilateral: Boolean(d.isLeftRight),
+      showDetails,
+      actionLibraryList: rawVariants.map((v) => ({
+        id: v.id,
+        videoPath: v.videoPath,
+        leftVideo: v.leftVideo,
+        rightVideo: v.rightVideo,
+      })),
     };
   }
 

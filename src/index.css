@@ -1748,3 +1748,75 @@ body::after {
   font-size: var(--text-xs);
   flex-shrink: 0;
 }
+
+.library-exercise-item {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.library-exercise-item .library-exercise-row {
+  border-bottom: none;
+}
+
+.library-expand-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 var(--space-xs);
+  font-size: var(--text-base);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.library-expand-btn:hover {
+  color: var(--text-primary);
+}
+
+.library-exercise-detail {
+  padding: 0 var(--space-md) var(--space-sm);
+}
+
+.library-video-tabs {
+  display: flex;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0 var(--space-sm);
+}
+
+.library-video {
+  width: 100%;
+  max-height: 220px;
+  border-radius: var(--radius);
+  background: #000;
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+.library-steps {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+  scrollbar-width: thin;
+}
+
+.library-step {
+  flex-shrink: 0;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.library-step img {
+  width: 140px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+}
+
+.library-step p {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}

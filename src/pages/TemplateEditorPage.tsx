@@ -6,7 +6,7 @@ import { ExerciseLibraryBrowser } from "../components/templates/ExerciseLibraryB
 import { ExerciseSetEditor } from "../components/templates/ExerciseSetEditor";
 import { buildTemplatePayload, mapDetailToEditorExercises } from "../lib/template-payload";
 import { PRESET_RULES } from "../types";
-import type { EditorExercise, ExerciseGroup } from "../types";
+import type { EditorExercise, ExerciseGroup, ExerciseDetail } from "../types";
 
 export function TemplateEditorPage() {
   const { code } = useParams<{ code?: string }>();
@@ -58,13 +58,13 @@ export function TemplateEditorPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceType]);
 
-  const handleAddExercise = useCallback((ex: ExerciseGroup) => {
+  const handleAddExercise = useCallback((ex: ExerciseGroup, detail: ExerciseDetail) => {
     const rules = PRESET_RULES["-1"];
     const newExercise: EditorExercise = {
       groupId: ex.id,
       actionLibraryId: ex.actionLibraryList[0]?.id ?? 0,
       presetId: -1,
-      isUnilateral: ex.isUnilateral,
+      isUnilateral: detail.isUnilateral,
       name: ex.name,
       sets: [
         { reps: rules.defR, weight: rules.defW, rest: rules.defRest, mode: 1, unit: "reps" },
@@ -206,7 +206,7 @@ export function TemplateEditorPage() {
       {/* Library browser */}
       {showBrowser && (
         <ExerciseLibraryBrowser
-          onAdd={(ex) => { handleAddExercise(ex); }}
+          onAdd={(ex, detail) => { handleAddExercise(ex, detail); }}
           onClose={() => setShowBrowser(false)}
         />
       )}
