@@ -207,15 +207,20 @@ export class SpeedianceClient {
       }
     }
 
-    // 3. Batch details (actionLibraryList, isUnilateral)
+    // 3. Batch details (actionLibraryList, isUnilateral) — chunked to avoid URI too large
     const ids = Array.from(exerciseMap.keys());
-    const query = ids.map((id) => `ids=${id}`).join("&");
-    const detailBody = await this.request(
-      "GET",
-      `${this.baseUrl}/api/app/actionLibraryGroup/list?${query}`,
-      { headers: this.getHeaders() },
-    );
-    const details = (detailBody.data ?? []) as Record<string, unknown>[];
+    const CHUNK_SIZE = 50;
+    const details: Record<string, unknown>[] = [];
+    for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
+      const chunk = ids.slice(i, i + CHUNK_SIZE);
+      const query = chunk.map((id) => `ids=${id}`).join("&");
+      const detailBody = await this.request(
+        "GET",
+        `${this.baseUrl}/api/app/actionLibraryGroup/list?${query}`,
+        { headers: this.getHeaders() },
+      );
+      details.push(...((detailBody.data ?? []) as Record<string, unknown>[]));
+    }
 
     const exercises: ExerciseGroup[] = details.map((d) => {
       const base = exerciseMap.get(d.id as number) ?? {};
