@@ -4,6 +4,7 @@ import type {
   Config,
   TrainingRecordsStore,
   WorkoutTemplatesStore,
+  ExerciseLibraryStore,
   ModalType,
   ToastState,
 } from "../types";
@@ -17,6 +18,8 @@ interface AppContextValue {
   setRecords: (value: TrainingRecordsStore | ((prev: TrainingRecordsStore) => TrainingRecordsStore)) => void;
   templates: WorkoutTemplatesStore;
   setTemplates: (value: WorkoutTemplatesStore | ((prev: WorkoutTemplatesStore) => WorkoutTemplatesStore)) => void;
+  exerciseLibrary: ExerciseLibraryStore | null;
+  setExerciseLibrary: (value: ExerciseLibraryStore | null) => void;
   isLoggedIn: boolean;
   activeModal: ModalType;
   setActiveModal: (modal: ModalType) => void;
@@ -33,6 +36,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useLocalStorage<Config>("wt_config", DEFAULT_CONFIG);
   const [records, setRecords] = useLocalStorage<TrainingRecordsStore>("wt_training_records", DEFAULT_RECORDS);
   const [templates, setTemplates] = useLocalStorage<WorkoutTemplatesStore>("wt_workout_templates", DEFAULT_TEMPLATES);
+  const [exerciseLibrary, setExerciseLibraryRaw] = useLocalStorage<ExerciseLibraryStore | null>("wt_exercise_library", null);
+  const setExerciseLibrary = (value: ExerciseLibraryStore | null) => setExerciseLibraryRaw(value);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [toast, setToast] = useState<ToastState>({ message: "", type: "info", visible: false });
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -49,6 +54,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         config, setConfig,
         records, setRecords,
         templates, setTemplates,
+        exerciseLibrary, setExerciseLibrary,
         isLoggedIn: !!config.token,
         activeModal, setActiveModal,
         toast, showToast,
