@@ -1054,6 +1054,12 @@ body::after {
 
 /* ── Progress ───────────────────────────────────────── */
 
+.progress-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .progress-search-wrap {
   position: relative;
   margin-bottom: var(--space-md);

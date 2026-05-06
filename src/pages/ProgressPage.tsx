@@ -45,7 +45,7 @@ export function ProgressPage() {
           </div>
         </div>
       ) : (
-        <div className="card-list">
+        <div className="progress-card-list">
           {filtered.map((s, i) => (
             <div
               key={s.name}
