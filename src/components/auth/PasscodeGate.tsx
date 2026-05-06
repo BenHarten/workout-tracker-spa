@@ -1,7 +1,7 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { sha256 } from "../../lib/crypto";
 
-const EXPECTED_HASH = "7916e4cdcc471ccf202d6656dd30c20a73afc1922ced51cab0e30c9d91af381e";
+const EXPECTED_HASH = "5d24d368975ec0649f7fb53175aeff182c099f3733fe84b51937387697de508c";
 const SESSION_KEY = "wt_auth_session";
 
 export function PasscodeGate({ children }: { children: ReactNode }) {
