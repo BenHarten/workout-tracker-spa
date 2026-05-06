@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { RecordList } from "../components/records/RecordList";
 import { CalendarView } from "../components/records/CalendarView";
+import { downloadWorkoutsCSV } from "../lib/export";
 
 type View = "list" | "calendar";
 
@@ -32,12 +33,24 @@ export function RecordsPage() {
   const count = Object.keys(records.records).length;
   const lastSynced = records.last_synced || "Never";
 
+  function handleExport() {
+    downloadWorkoutsCSV(records.records);
+  }
+
   return (
     <div className="page">
       <div className="status-bar">
         <span>Last synced: {lastSynced}</span>
         <span className="dot" />
         <span>{count} record{count !== 1 ? "s" : ""}</span>
+        <button
+          className="export-csv-btn"
+          onClick={handleExport}
+          disabled={count === 0}
+          title={count === 0 ? "No records to export" : "Download all workouts as CSV"}
+        >
+          Export CSV
+        </button>
         <div className="view-toggle">
           <button
             className={`view-toggle-btn${view === "list" ? " active" : ""}`}
