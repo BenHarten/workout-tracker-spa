@@ -34,13 +34,12 @@ export function buildTemplatePayload(
       leftRightList.push(ex.isUnilateral ? (i % 2 === 0 ? "1" : "2") : "0");
 
       if (ex.presetId === -1) {
-        const apiWeight = set.weight * 2.2;
-        weightsList.push(apiWeight.toFixed(1));
-        setCapacity += set.reps * apiWeight;
+        weightsList.push(set.weight.toFixed(1));
+        setCapacity += set.reps * set.weight;
       } else {
         weightsList.push("3.5");
         counterList.push(String(Math.round(set.weight)));
-        setCapacity += set.reps * set.weight * 2.2;
+        setCapacity += set.reps * set.weight;
       }
     });
 
@@ -87,7 +86,7 @@ export function buildTemplatePayload(
 export function mapDetailToEditorExercises(
   detail: Record<string, unknown>,
 ): EditorExercise[] {
-  const actionList = (detail.customTrainingTemplateActionList ?? []) as Record<string, unknown>[];
+  const actionList = (detail.actionLibraryList ?? []) as Record<string, unknown>[];
 
   return actionList.map((ex) => {
     const repsArr = csvSplit(ex.setsAndReps as string);
@@ -104,9 +103,7 @@ export function mapDetailToEditorExercises(
       const completionMethod = Number(completionMethodArr[i] ?? 1);
       let weight: number;
       if (presetId === -1) {
-        const raw = Number(weightsArr[i] ?? 22);
-        // API stores weights in LBS internally; convert to KG, round to nearest 0.5
-        weight = Math.round((raw / 2.2) * 2) / 2;
+        weight = Number(weightsArr[i] ?? 10);
       } else {
         weight = Number(counterArr[i] ?? 13);
       }
@@ -130,7 +127,7 @@ export function mapDetailToEditorExercises(
   });
 }
 
-function csvSplit(value: string | undefined | null): string[] {
+export function csvSplit(value: string | undefined | null): string[] {
   if (!value) return [];
   return String(value).split(",").filter(Boolean);
 }

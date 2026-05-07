@@ -123,7 +123,7 @@ export function SyncModal() {
         const detail = await client.getWorkoutDetail(code);
         if (!detail) continue;
 
-        const exercises = (detail.customTrainingTemplateActionList ?? []) as Record<string, unknown>[];
+        const exercises = (detail.actionLibraryList ?? []) as Record<string, unknown>[];
 
         merged[code] = {
           code,
