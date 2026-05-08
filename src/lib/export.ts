@@ -1,4 +1,4 @@
-import type { TrainingRecord, SpeedianceExercise, FinishedRep } from "../types";
+import type { TrainingRecord, SpeedianceExercise, FinishedRep, WorkoutTemplate } from "../types";
 
 interface SetRow {
   reps: number | string;
@@ -91,6 +91,50 @@ export function downloadWorkoutsCSV(records: Record<string, TrainingRecord>): vo
   const a = document.createElement("a");
   a.href = url;
   a.download = `workouts-${today}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function exportTemplatesToCSV(templates: Record<string, WorkoutTemplate>): string {
+  const rows: string[] = ["template_name,device_type,exercise,set_num,reps,weight_kg"];
+  const deviceLabel = (t: WorkoutTemplate) => t.device_type === 2 ? "GymPal" : "GymMonster";
+
+  Object.values(templates)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(template => {
+      template.exercises.forEach(ex => {
+        const sets = ex.setsAndReps ? ex.setsAndReps.split(",") : [];
+        const weights = ex.weights ? ex.weights.split(",") : [];
+
+        if (sets.length === 0) {
+          rows.push([csvCell(template.name), csvCell(deviceLabel(template)), csvCell(ex.title), "", "", ""].join(","));
+          return;
+        }
+
+        sets.forEach((reps, i) => {
+          rows.push([
+            csvCell(template.name),
+            csvCell(deviceLabel(template)),
+            csvCell(ex.title),
+            csvCell(i + 1),
+            csvCell(reps.trim()),
+            csvCell(weights[i]?.trim() ?? ""),
+          ].join(","));
+        });
+      });
+    });
+
+  return rows.join("\n");
+}
+
+export function downloadTemplatesCSV(templates: Record<string, WorkoutTemplate>): void {
+  const csv = exportTemplatesToCSV(templates);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const today = new Date().toISOString().split("T")[0];
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `templates-${today}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
