@@ -5,8 +5,20 @@
     display: table;
   }
 
+  /*
+   * Card lists are the mobile half of the dual-markup pattern; a .data-table
+   * replaces them on desktop.
+   */
   .card-list {
     display: none;
+  }
+
+  /*
+   * ...but some card lists (e.g. exercise session history) have no table
+   * counterpart, so hiding them would leave the section empty on desktop.
+   */
+  .card-list.card-list-standalone {
+    display: flex;
   }
 
   .page {

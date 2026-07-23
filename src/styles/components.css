@@ -171,6 +171,16 @@
   border-bottom: 1px solid var(--border);
 }
 
+/*
+ * The detail cell spans the full row, so it is also :last-child and would
+ * otherwise inherit the right-alignment meant for the trailing chevron column,
+ * right-aligning the whole expanded panel. Needs :last-child here too, to
+ * out-specify `.data-table tbody td:last-child`.
+ */
+.data-table .detail-row td:last-child {
+  text-align: left;
+}
+
 .data-table .detail-row:hover {
   background: transparent;
   cursor: default;

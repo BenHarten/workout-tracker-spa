@@ -259,7 +259,8 @@ export function ExerciseDetail({ exerciseName, onBack }: ExerciseDetailProps) {
 
       <div className="progress-section-title">Session History</div>
 
-      <div className="card-list">
+      {/* Standalone: no <table> counterpart on desktop, so it must not be hidden. */}
+      <div className="card-list card-list-standalone">
         {reversedSessions.map((session, i) => (
           <div
             key={session.recordId}

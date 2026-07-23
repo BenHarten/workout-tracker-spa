@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useApp } from "../context/AppContext";
+import type { ResolvedTheme } from "../types";
 
 export interface ChartTheme {
   accent: string;
@@ -21,12 +22,29 @@ function readVar(styles: CSSStyleDeclaration, name: string, fallback: string): s
 }
 
 /**
- * Snapshot the current theme's colours for Chart.js, which takes colours as JS
- * values and cannot read CSS custom properties itself. Reading the computed
- * properties here keeps tokens.css the single source of truth.
+ * Snapshot a theme's colours for Chart.js, which takes colours as JS values and
+ * cannot read CSS custom properties itself. Reading the computed properties
+ * keeps tokens.css the single source of truth.
+ *
+ * The values are read from a detached probe carrying the requested theme rather
+ * than from `document.documentElement`. The root's `data-theme` is applied in an
+ * effect, which runs *after* the render that consumes this — so reading the root
+ * during a theme switch yields the outgoing theme and drew light grid lines on
+ * the dark canvas. Probing is deterministic and needs no render-phase DOM write.
  */
-export function readChartTheme(): ChartTheme {
-  const s = getComputedStyle(document.documentElement);
+export function readChartTheme(theme: ResolvedTheme): ChartTheme {
+  const probe = document.createElement("div");
+  probe.dataset.theme = theme;
+  probe.style.display = "none";
+  document.body.appendChild(probe);
+  try {
+    return readFrom(getComputedStyle(probe));
+  } finally {
+    probe.remove();
+  }
+}
+
+function readFrom(s: CSSStyleDeclaration): ChartTheme {
   const accent = readVar(s, "--accent", "#2d7d6e");
   return {
     accent,
@@ -53,8 +71,5 @@ export function readChartTheme(): ChartTheme {
  */
 export function useChartTheme(): ChartTheme {
   const { resolvedTheme } = useApp();
-  // readChartTheme() reads the DOM rather than any JS value, so resolvedTheme is
-  // the cache key rather than a referenced dependency — the lint rule can't see that.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => readChartTheme(), [resolvedTheme]);
+  return useMemo(() => readChartTheme(resolvedTheme), [resolvedTheme]);
 }

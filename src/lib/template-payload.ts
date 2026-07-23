@@ -1,4 +1,5 @@
 import type { EditorExercise, EditorSet } from "../types";
+import { PRESET_RULES } from "../types";
 
 // ── Payload builder ────────────────────────────────────────────
 
@@ -83,6 +84,23 @@ export function buildTemplatePayload(
 
 // ── Map API detail → EditorExercise[] ─────────────────────────
 
+/**
+ * Coerce an API `templatePresetId` to one the editor models.
+ *
+ * Speediance returns preset ids beyond the four in PRESET_RULES (a value of 12
+ * has been observed in real templates). Previously this was a bare `as` cast,
+ * so an unknown id produced `PRESET_RULES[id] === undefined` and crashed the
+ * whole editor on render, making any template containing one uneditable.
+ *
+ * Unknown presets fall back to -1 ("Custom KG"). Note this reads the `weights`
+ * field rather than `counterweight`, so a template using an unmodelled preset
+ * may show different weights than the phone app until that preset is defined.
+ */
+function toPresetId(raw: unknown): EditorExercise["presetId"] {
+  const n = Number(raw ?? -1);
+  return String(n) in PRESET_RULES ? (n as EditorExercise["presetId"]) : -1;
+}
+
 export function mapDetailToEditorExercises(
   detail: Record<string, unknown>,
 ): EditorExercise[] {
@@ -96,7 +114,7 @@ export function mapDetailToEditorExercises(
     const leftRightArr = csvSplit(ex.leftRight as string);
     const completionMethodArr = csvSplit(ex.completionMethod as string);
     const counterArr = csvSplit((ex.counterweight2 ?? ex.counterweight) as string);
-    const presetId = (Number(ex.templatePresetId ?? -1)) as -1 | 1 | 3 | 5;
+    const presetId = toPresetId(ex.templatePresetId);
     const isUnilateral = leftRightArr.some((v) => v === "1" || v === "2");
 
     const sets: EditorSet[] = repsArr.map((reps, i) => {

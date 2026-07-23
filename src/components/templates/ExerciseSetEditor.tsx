@@ -21,7 +21,12 @@ function clamp(v: number, min: number, max: number, step: number): number {
 
 export function ExerciseSetEditor({ exercise, index, onChange, onRemove, onDragStart, onDragOver, onDrop }: Props) {
   const presetKey = String(exercise.presetId) as PresetId;
-  const rules = PRESET_RULES[presetKey];
+  /*
+   * Defence in depth: mapDetailToEditorExercises already coerces unknown API
+   * presets, but an unmodelled id reaching here would otherwise make `rules`
+   * undefined and blank the entire editor rather than degrading one row.
+   */
+  const rules = PRESET_RULES[presetKey] ?? PRESET_RULES["-1"];
   const dragging = useRef(false);
 
   const updateSet = (setIdx: number, field: keyof EditorSet, raw: string) => {
