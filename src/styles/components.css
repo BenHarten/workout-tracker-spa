@@ -725,3 +725,8 @@
   color: var(--text-primary);
   box-shadow: var(--shadow-sm);
 }
+
+.settings-select {
+  width: auto;
+  min-width: 160px;
+}

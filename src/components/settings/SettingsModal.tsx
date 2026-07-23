@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { Modal } from "../layout/Modal";
 import { ThemeToggle } from "../layout/ThemeToggle";
+import { DEFAULT_WEEKLY_GOAL } from "../../types";
 import { SpeedianceClient } from "../../api/speediance";
 
 export function SettingsModal() {
@@ -51,11 +52,34 @@ export function SettingsModal() {
 
   return (
     <Modal title="Settings" onClose={() => setActiveModal(null)}>
-      {/* Moves to the sidebar footer in Phase 2. */}
+      {/* The theme toggle also lives in the sidebar footer; kept here so it is
+          reachable from the modal too. */}
       <div className="modal-section">
         <div className="modal-section-title">Appearance</div>
         <ThemeToggle />
       </div>
+
+      <div className="modal-section">
+        <div className="modal-section-title">Training</div>
+        <div className="settings-row">
+          <label className="settings-label" htmlFor="weekly-goal">
+            Weekly goal
+          </label>
+          <select
+            id="weekly-goal"
+            className="form-input settings-select"
+            value={config.weekly_goal ?? DEFAULT_WEEKLY_GOAL}
+            onChange={(e) => setConfig({ ...config, weekly_goal: Number(e.target.value) })}
+          >
+            {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+              <option key={n} value={n}>
+                {n} session{n === 1 ? "" : "s"} / week
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {isLoggedIn ? (
         <>
           <div className="modal-section">

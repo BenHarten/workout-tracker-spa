@@ -6,7 +6,12 @@ export interface Config {
   region: "EU" | "Global";
   unit: number;
   device_type: number; // 1 = GymMonster, 2 = GymPal
+  /** Target sessions per week, for the dashboard ring. Optional for configs
+   *  persisted before this existed. */
+  weekly_goal?: number;
 }
+
+export const DEFAULT_WEEKLY_GOAL = 3;
 
 export const DEFAULT_CONFIG: Config = {
   user_id: "",
@@ -14,6 +19,7 @@ export const DEFAULT_CONFIG: Config = {
   region: "EU",
   unit: 0,
   device_type: 1,
+  weekly_goal: DEFAULT_WEEKLY_GOAL,
 };
 
 // ── Training Records ────────────────────────────────────────────

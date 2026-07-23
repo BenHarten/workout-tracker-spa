@@ -83,6 +83,12 @@ export const CloseIcon = ({ className }: IconProps) => (
   </svg>
 );
 
+export const FlameIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M12 2c1.5 3.5-1 5 0 7 .8 1.6 3 1.4 3 4a5 5 0 0 1-10 .4C5 10 9 8 9 4c2 1 3 2.5 3 4 1-1.5 1-4 0-6z" />
+  </svg>
+);
+
 export const UserIcon = ({ className }: IconProps) => (
   <svg {...base} className={className}>
     <circle cx="12" cy="8" r="4" />
