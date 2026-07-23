@@ -5,7 +5,8 @@ import { SpeedianceClient, AuthError } from "../api/speediance";
 import { ExerciseLibraryBrowser } from "../components/templates/ExerciseLibraryBrowser";
 import { ExerciseSetEditor } from "../components/templates/ExerciseSetEditor";
 import { buildTemplatePayload, mapDetailToEditorExercises } from "../lib/template-payload";
-import { PRESET_RULES } from "../types";
+import { CUSTOM_KG_PRESET_ID } from "../types";
+import { CUSTOM_KG_RULES } from "../lib/presets";
 import type { EditorExercise, ExerciseGroup, ExerciseDetail } from "../types";
 
 export function TemplateEditorPage() {
@@ -59,11 +60,17 @@ export function TemplateEditorPage() {
   }, [deviceType]);
 
   const handleAddExercise = useCallback((ex: ExerciseGroup, detail: ExerciseDetail) => {
-    const rules = PRESET_RULES["-1"];
+    const rules = CUSTOM_KG_RULES;
     const newExercise: EditorExercise = {
       groupId: ex.id,
       actionLibraryId: ex.actionLibraryList[0]?.id ?? 0,
-      presetId: -1,
+      presetId: CUSTOM_KG_PRESET_ID,
+      /*
+       * The library endpoint does not return templatePresetList, so a freshly
+       * added exercise offers only Custom KG until the template is saved and
+       * re-fetched. Fetching presets on add would remove that gap.
+       */
+      presets: [],
       isUnilateral: detail.isUnilateral,
       name: ex.name,
       sets: [

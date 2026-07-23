@@ -1,5 +1,6 @@
 import type { EditorExercise, EditorSet } from "../types";
-import { PRESET_RULES } from "../types";
+import { CUSTOM_KG_PRESET_ID } from "../types";
+import { parsePresetList, rulesFor } from "./presets";
 
 // ── Payload builder ────────────────────────────────────────────
 
@@ -12,6 +13,8 @@ export function buildTemplatePayload(
   let totalCapacity = 0;
 
   const actionLibraryList = exercises.map((ex) => {
+    const rules = rulesFor(ex.presets, ex.presetId);
+    const timeBased = rules.kind === "time";
     const repsList: string[] = [];
     const weightsList: string[] = [];
     const counterList: string[] = [];
@@ -34,7 +37,15 @@ export function buildTemplatePayload(
       countTypeList.push(set.unit === "sec" ? "2" : "1");
       leftRightList.push(ex.isUnilateral ? (i % 2 === 0 ? "1" : "2") : "0");
 
-      if (ex.presetId === -1) {
+      if (timeBased) {
+        /*
+         * Bodyweight/time presets carry no load, and observed payloads store
+         * zeroes in both weights and counterweight. They contribute nothing to
+         * capacity, which is a kg x reps figure.
+         */
+        weightsList.push("0.0");
+        counterList.push("0");
+      } else if (ex.presetId === CUSTOM_KG_PRESET_ID) {
         weightsList.push(set.weight.toFixed(1));
         setCapacity += set.reps * set.weight;
       } else {
@@ -45,7 +56,8 @@ export function buildTemplatePayload(
     });
 
     totalCapacity += setCapacity;
-    const finalCounter = ex.presetId !== -1 ? counterList.join(",") : "";
+    const finalCounter =
+      ex.presetId !== CUSTOM_KG_PRESET_ID ? counterList.join(",") : "";
 
     return {
       groupId: ex.groupId,
@@ -84,23 +96,6 @@ export function buildTemplatePayload(
 
 // ── Map API detail → EditorExercise[] ─────────────────────────
 
-/**
- * Coerce an API `templatePresetId` to one the editor models.
- *
- * Speediance returns preset ids beyond the four in PRESET_RULES (a value of 12
- * has been observed in real templates). Previously this was a bare `as` cast,
- * so an unknown id produced `PRESET_RULES[id] === undefined` and crashed the
- * whole editor on render, making any template containing one uneditable.
- *
- * Unknown presets fall back to -1 ("Custom KG"). Note this reads the `weights`
- * field rather than `counterweight`, so a template using an unmodelled preset
- * may show different weights than the phone app until that preset is defined.
- */
-function toPresetId(raw: unknown): EditorExercise["presetId"] {
-  const n = Number(raw ?? -1);
-  return String(n) in PRESET_RULES ? (n as EditorExercise["presetId"]) : -1;
-}
-
 export function mapDetailToEditorExercises(
   detail: Record<string, unknown>,
 ): EditorExercise[] {
@@ -114,23 +109,31 @@ export function mapDetailToEditorExercises(
     const leftRightArr = csvSplit(ex.leftRight as string);
     const completionMethodArr = csvSplit(ex.completionMethod as string);
     const counterArr = csvSplit((ex.counterweight2 ?? ex.counterweight) as string);
-    const presetId = toPresetId(ex.templatePresetId);
+    const presets = parsePresetList(ex.templatePresetList);
+    const presetId = Number(ex.templatePresetId ?? CUSTOM_KG_PRESET_ID);
+    const rules = rulesFor(presets, presetId);
     const isUnilateral = leftRightArr.some((v) => v === "1" || v === "2");
 
     const sets: EditorSet[] = repsArr.map((reps, i) => {
       const completionMethod = Number(completionMethodArr[i] ?? 1);
       let weight: number;
-      if (presetId === -1) {
-        weight = Number(weightsArr[i] ?? 10);
+      if (rules.kind === "time") {
+        // Time-based presets carry no load; the machine is not even engaged.
+        weight = 0;
+      } else if (presetId === CUSTOM_KG_PRESET_ID) {
+        weight = Number(weightsArr[i] ?? rules.defW);
       } else {
-        weight = Number(counterArr[i] ?? 13);
+        // Load presets are stored on the RM scale in counterweight, not kilos.
+        weight = Number(counterArr[i] ?? rules.defW);
       }
       return {
-        reps: Number(reps || 10),
+        reps: Number(reps || rules.defR),
         weight: Math.max(0, weight),
-        rest: Number(breakArr[i] ?? 60),
+        rest: Number(breakArr[i] ?? rules.defRest),
         mode: Number(modeArr[i] ?? 1),
-        unit: completionMethod === 2 ? "sec" : "reps",
+        // For time presets `setsAndReps` holds seconds, so the unit follows the
+        // preset rather than completionMethod (which is 0 on these exercises).
+        unit: rules.kind === "time" || completionMethod === 2 ? "sec" : "reps",
       };
     });
 
@@ -138,6 +141,7 @@ export function mapDetailToEditorExercises(
       groupId: Number(ex.groupId),
       actionLibraryId: Number(ex.actionLibraryId),
       presetId,
+      presets,
       isUnilateral,
       name: String(ex.title ?? ex.actionLibraryName ?? "Unknown"),
       sets,

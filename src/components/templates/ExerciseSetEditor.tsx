@@ -1,6 +1,7 @@
 import { useRef } from "react";
-import type { EditorExercise, EditorSet, PresetId } from "../../types";
-import { PRESET_RULES } from "../../types";
+import type { EditorExercise, EditorSet } from "../../types";
+import { CUSTOM_KG_PRESET_ID } from "../../types";
+import { CUSTOM_KG_RULES, rulesFor } from "../../lib/presets";
 
 interface Props {
   exercise: EditorExercise;
@@ -20,13 +21,13 @@ function clamp(v: number, min: number, max: number, step: number): number {
 }
 
 export function ExerciseSetEditor({ exercise, index, onChange, onRemove, onDragStart, onDragOver, onDrop }: Props) {
-  const presetKey = String(exercise.presetId) as PresetId;
   /*
-   * Defence in depth: mapDetailToEditorExercises already coerces unknown API
-   * presets, but an unmodelled id reaching here would otherwise make `rules`
-   * undefined and blank the entire editor rather than degrading one row.
+   * Rules come from the preset the API shipped with this exercise. rulesFor()
+   * falls back to Custom KG for an unknown id, so an unmodelled preset degrades
+   * one row rather than blanking the editor.
    */
-  const rules = PRESET_RULES[presetKey] ?? PRESET_RULES["-1"];
+  const rules = rulesFor(exercise.presets, exercise.presetId);
+  const timeBased = rules.kind === "time";
   const dragging = useRef(false);
 
   const updateSet = (setIdx: number, field: keyof EditorSet, raw: string) => {
@@ -52,13 +53,17 @@ export function ExerciseSetEditor({ exercise, index, onChange, onRemove, onDragS
     onChange({ ...exercise, sets: exercise.sets.filter((_, i) => i !== setIdx) });
   };
 
-  const changePreset = (presetId: -1 | 1 | 3 | 5) => {
-    const newRules = PRESET_RULES[String(presetId) as PresetId];
+  const changePreset = (presetId: number) => {
+    const newRules = rulesFor(exercise.presets, presetId);
     const sets = exercise.sets.map((s) => ({
       ...s,
-      weight: clamp(newRules.defW, newRules.minW, newRules.maxW, newRules.step),
+      weight:
+        newRules.kind === "time"
+          ? 0
+          : clamp(newRules.defW, newRules.minW, newRules.maxW, newRules.step),
       reps: clamp(newRules.defR, newRules.minR, newRules.maxR, 1),
       rest: newRules.defRest,
+      unit: newRules.kind === "time" ? ("sec" as const) : ("reps" as const),
     }));
     onChange({ ...exercise, presetId, sets });
   };
@@ -79,12 +84,23 @@ export function ExerciseSetEditor({ exercise, index, onChange, onRemove, onDragS
         <select
           className="form-input editor-preset-select"
           value={exercise.presetId}
-          onChange={(e) => changePreset(Number(e.target.value) as -1 | 1 | 3 | 5)}
+          onChange={(e) => changePreset(Number(e.target.value))}
         >
-          <option value={-1}>Custom KG</option>
-          <option value={1}>Gain Muscle (RM)</option>
-          <option value={3}>Stamina (RM)</option>
-          <option value={5}>Strength (RM)</option>
+          <option value={CUSTOM_KG_PRESET_ID}>{CUSTOM_KG_RULES.name}</option>
+          {/* Options come from the API, so every preset this exercise supports
+              is offered — including time-based ones the app used to crash on. */}
+          {exercise.presets.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+              {p.trainingTime !== undefined && p.weight === undefined ? " (Time)" : " (RM)"}
+            </option>
+          ))}
+          {/* A preset already in use but missing from the list stays selectable
+              so opening a template never silently rewrites it. */}
+          {exercise.presetId !== CUSTOM_KG_PRESET_ID &&
+            !exercise.presets.some((p) => p.id === exercise.presetId) && (
+              <option value={exercise.presetId}>Preset {exercise.presetId}</option>
+            )}
         </select>
         <button className="btn btn-ghost editor-action-btn" onClick={addSet} title="Add set">+ Set</button>
         <button className="btn btn-ghost editor-action-btn editor-remove-btn" onClick={onRemove} title="Remove exercise">✕</button>
@@ -95,8 +111,8 @@ export function ExerciseSetEditor({ exercise, index, onChange, onRemove, onDragS
           <thead>
             <tr>
               <th>#</th>
-              <th>Reps</th>
-              <th>{rules.label}</th>
+              <th>{timeBased ? "Time (s)" : "Reps"}</th>
+              {!timeBased && <th>{rules.loadLabel}</th>}
               <th>Rest (s)</th>
               <th></th>
             </tr>
@@ -116,17 +132,19 @@ export function ExerciseSetEditor({ exercise, index, onChange, onRemove, onDragS
                     onChange={(e) => updateSet(si, "reps", e.target.value)}
                   />
                 </td>
-                <td>
-                  <input
-                    className="form-input editor-set-input"
-                    type="number"
-                    min={rules.minW}
-                    max={rules.maxW}
-                    step={rules.step}
-                    value={set.weight}
-                    onChange={(e) => updateSet(si, "weight", e.target.value)}
-                  />
-                </td>
+                {!timeBased && (
+                  <td>
+                    <input
+                      className="form-input editor-set-input"
+                      type="number"
+                      min={rules.minW}
+                      max={rules.maxW}
+                      step={rules.step}
+                      value={set.weight}
+                      onChange={(e) => updateSet(si, "weight", e.target.value)}
+                    />
+                  </td>
+                )}
                 <td>
                   <input
                     className="form-input editor-set-input"

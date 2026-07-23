@@ -182,20 +182,75 @@ export interface EditorSet {
   unit: "reps" | "sec";
 }
 
+/**
+ * A training preset as the API defines it, returned inline on every exercise
+ * as `templatePresetList`.
+ *
+ * Presets come in two shapes, distinguished by which fields are present:
+ *  - load-based (Training tab): `weight` + `trainingCount` and their scopes.
+ *  - time-based (Bodyweight tab): `trainingTime` and its scope, no load at all.
+ *
+ * Do not hardcode the set of presets — the API ships more than the handful any
+ * one tab exposes, and an unmodelled id used to crash the editor outright.
+ */
+export interface TemplatePreset {
+  id: number;
+  tabId?: number;
+  presetId?: number;
+  name: string;
+  groupCount?: number;
+
+  // Load-based
+  weight?: number;
+  weightScopeStart?: number;
+  weightScopeEnd?: number;
+  trainingCount?: number;
+  trainingCountScopeStart?: number;
+  trainingCountScopeEnd?: number;
+  percent1rm?: number;
+
+  // Time-based
+  trainingTime?: number;
+  trainingTimeScopeStart?: number;
+  trainingTimeScopeEnd?: number;
+
+  relaxTime?: number;
+  relaxTimeScopeStart?: number;
+  relaxTimeScopeEnd?: number;
+}
+
+/** Sentinel for the app's own free-entry mode; not a preset the API defines. */
+export const CUSTOM_KG_PRESET_ID = -1;
+
+/** Normalised, app-facing editing rules derived from a TemplatePreset. */
+export interface PresetRules {
+  id: number;
+  name: string;
+  /** "load" shows a weight/RM column; "time" replaces reps with a duration. */
+  kind: "load" | "time";
+  /** Header for the load column. Undefined when kind === "time". */
+  loadLabel?: string;
+  step: number;
+  defW: number;
+  minW: number;
+  maxW: number;
+  /** Reps, or seconds when kind === "time". */
+  defR: number;
+  minR: number;
+  maxR: number;
+  defRest: number;
+}
+
 export interface EditorExercise {
   groupId: number;
   actionLibraryId: number;
-  presetId: -1 | 1 | 3 | 5;
+  /** Preset id, or CUSTOM_KG_PRESET_ID. Deliberately a plain number — the API
+   *  defines presets we do not enumerate. */
+  presetId: number;
+  /** Presets this exercise offers, straight from the API. May be empty for
+   *  exercises freshly added from the library, which fall back to Custom KG. */
+  presets: TemplatePreset[];
   isUnilateral: boolean;
   name: string;
   sets: EditorSet[];
 }
-
-export const PRESET_RULES = {
-  "-1": { label: "KG", step: 0.5, defW: 10, minW: 3.5, maxW: 100, defR: 10, minR: 1,  maxR: 99, defRest: 60 },
-  "1":  { label: "RM", step: 1,   defW: 13, minW: 9,   maxW: 13,  defR: 12, minR: 8,  maxR: 12, defRest: 60 },
-  "3":  { label: "RM", step: 1,   defW: 17, minW: 15,  maxW: 20,  defR: 15, minR: 13, maxR: 20, defRest: 45 },
-  "5":  { label: "RM", step: 1,   defW: 7,  minW: 4,   maxW: 9,   defR: 6,  minR: 2,  maxR: 8,  defRest: 90 },
-} as const;
-
-export type PresetId = keyof typeof PRESET_RULES;
