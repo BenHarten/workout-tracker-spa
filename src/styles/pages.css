@@ -254,181 +254,289 @@
 
 /* ── Calendar ──────────────────────────────────────────── */
 
-.calendar {
-  padding: var(--space-md);
-}
-
 .calendar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--space-sm);
   margin-bottom: var(--space-md);
 }
 
 .calendar-month {
-  font-size: var(--text-base);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
-  text-transform: capitalize;
+  min-width: 9.5em;
 }
 
 .calendar-nav {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  cursor: pointer;
   font-size: var(--text-lg);
   line-height: 1;
-  padding: 2px 10px;
-  transition: color 0.15s, border-color 0.15s;
+  border: 1px solid var(--border);
 }
 
-.calendar-nav:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+/* Mobile is always the agenda: a 7-column grid cannot show workout names. */
+.calendar-view-toggle {
+  display: none;
+  margin-left: auto;
+  gap: 2px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 3px;
 }
 
 .calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+  display: none;
 }
 
-.calendar-weekday {
-  text-align: center;
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  padding: var(--space-xs) 0;
+.calendar-agenda {
+  display: block;
 }
 
-/* Mobile day cell */
-.calendar-day {
-  position: relative;
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* ── Pills ─────────────────────────────────────────────── */
+
+.calendar-pill {
+  display: inline-block;
+  max-width: 100%;
+  padding: 1px var(--space-xs);
   border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  background: transparent;
-  cursor: default;
+  font-size: var(--text-xs);
+  line-height: 1.5;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.calendar-day.has-workout {
-  background: var(--bg-card);
-  color: var(--text-primary);
+.pill-custom   { background: var(--type-custom-soft);   color: var(--type-custom); }
+.pill-plan     { background: var(--type-plan-soft);     color: var(--type-plan); }
+.pill-course   { background: var(--type-course-soft);   color: var(--type-course); }
+.pill-fitnote  { background: var(--type-fitnote-soft);  color: var(--type-fitnote); }
+.pill-other,
+.pill-more     { background: var(--bg-hover);           color: var(--text-muted); }
+
+/* ── Agenda ────────────────────────────────────────────── */
+
+.agenda-day {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.agenda-day:last-of-type {
+  border-bottom: none;
+}
+
+.agenda-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-sm);
+  border: none;
+  background: transparent;
+  text-align: left;
   cursor: pointer;
+  border-radius: var(--radius);
+  transition: background var(--transition);
 }
 
-.calendar-day.has-workout:hover {
+.agenda-row:hover {
   background: var(--bg-hover);
 }
 
-.calendar-day.selected {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-  background: var(--bg-elevated);
+.agenda-day.is-today .agenda-row {
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.calendar-day-num {
-  font-size: var(--text-sm);
-  line-height: 1;
+.agenda-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 2.6rem;
+  flex-shrink: 0;
 }
 
-.calendar-day.has-workout .calendar-day-num {
+.agenda-weekday {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.agenda-daynum {
+  font-size: var(--text-xl);
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.agenda-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-volume {
+  font-size: var(--text-xs);
   color: var(--accent);
-  font-weight: 600;
+  flex-shrink: 0;
 }
 
-/* Desktop-only: workout name and multi indicator inside tile */
-.calendar-day-name {
-  display: none;
+.agenda-detail {
+  padding: 0 var(--space-sm) var(--space-md);
 }
 
-.calendar-day-multi {
-  display: none;
+.calendar-empty {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  padding: var(--space-lg) var(--space-sm);
+  text-align: center;
 }
 
-/* Mobile-only: count badge top-right */
-.calendar-day-badge {
-  position: absolute;
-  top: 2px;
-  right: 3px;
-  font-size: 9px;
-  background: var(--accent);
-  color: var(--bg-card);
-  border-radius: 10px;
-  padding: 0 4px;
-  line-height: 1.6;
-  font-weight: 700;
+/* ── Legend ────────────────────────────────────────────── */
+
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
 }
 
-@media (min-width: 768px) {
-  .calendar-day {
-    aspect-ratio: unset;
-    min-height: 64px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: var(--space-xs);
-  }
-
-  /* Show name / multi indicator on desktop */
-  .calendar-day-name {
-    display: block;
-    font-size: 10px;
-    color: var(--accent);
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-  }
-
-  .calendar-day-multi {
-    display: block;
-    font-size: 10px;
-    color: var(--accent);
-    margin-top: 2px;
-  }
-
-  /* Hide mobile badge on desktop */
-  .calendar-day-badge {
-    display: none;
-  }
+.calendar-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
-/* ── Calendar detail section ──────────────────────────── */
+.calendar-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ── Detail section ────────────────────────────────────── */
 
 .calendar-detail {
   margin-top: var(--space-md);
-  border-top: 1px solid var(--border);
   padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
 }
 
 .calendar-detail-date {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  font-weight: 600;
-  margin-bottom: var(--space-sm);
-  text-transform: capitalize;
-}
-
-.calendar-detail-name {
+  font-family: var(--font-display);
   font-size: var(--text-base);
   font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.calendar-detail-name {
+  font-size: var(--text-sm);
+  color: var(--accent);
   margin-bottom: var(--space-xs);
 }
 
 .calendar-detail-divider {
-  border-top: 1px solid var(--border-subtle);
+  height: 1px;
+  background: var(--border-subtle);
   margin: var(--space-md) 0;
 }
 
+/* ── Desktop ───────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .calendar-view-toggle {
+    display: flex;
+  }
+
+  .calendar--month .calendar-grid {
+    display: grid;
+    /*
+     * minmax(0, 1fr), not 1fr: the latter is minmax(auto, 1fr), so a long
+     * nowrap workout name sets a minimum track width and pushes the seventh
+     * column off screen.
+     */
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-xs);
+  }
+
+  .calendar--month .calendar-agenda {
+    display: none;
+  }
+
+  .calendar--agenda .calendar-grid {
+    display: none;
+  }
+
+  .calendar-weekday {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+    padding-bottom: var(--space-xs);
+  }
+
+  .calendar-day {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    min-height: 86px;
+    padding: var(--space-xs);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+  }
+
+  .calendar-day:disabled {
+    cursor: default;
+    background: transparent;
+  }
+
+  .calendar-day:not(:disabled):hover {
+    background: var(--bg-hover);
+  }
+
+  .calendar-day.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .calendar-day.is-today .calendar-day-num {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .calendar-day-num {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .calendar-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  /* Grid cells show names, so the mobile count badge is redundant. */
+  .calendar-day-badge {
+    display: none;
+  }
+}
 /* ── Template Actions ─────────────────────────────────────── */
 
 .tpl-actions {

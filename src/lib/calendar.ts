@@ -71,17 +71,24 @@ export function startOfWeek(s: string): string {
   return addDays(s, -mondayIndex(d));
 }
 
-export const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+/*
+ * Locale strings live only here.
+ *
+ * The calendar was the app's one pocket of German while format.ts and the
+ * progress pages used en-GB; the mix was the actual bug. Monday-first week
+ * order is kept — that is a convention, not a locale.
+ */
+export const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function monthLabel(year: number, month: number): string {
-  return new Date(year, month, 1).toLocaleDateString("de-DE", {
+  return new Date(year, month, 1).toLocaleDateString("en-GB", {
     month: "long",
     year: "numeric",
   });
 }
 
 export function longDateLabel(dateStr: string): string {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("de-DE", {
+  return parseDateStr(dateStr).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
