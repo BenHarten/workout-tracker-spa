@@ -1,4 +1,12 @@
-import type { Config, ExerciseLibraryStore, ExerciseGroup, ExerciseDetail, ExerciseStep } from "../types";
+import type {
+  Config,
+  ExerciseLibraryStore,
+  ExerciseGroup,
+  ExerciseDetail,
+  ExerciseStep,
+  ExerciseMuscles,
+  ExerciseMuscleStore,
+} from "../types";
 
 export class AuthError extends Error {
   constructor(message: string) {
@@ -293,5 +301,64 @@ export class SpeedianceClient {
     await this.request("DELETE", `${this.baseUrl}/api/app/customTrainingTemplate?ids=${id}`, {
       headers: this.getHeaders(),
     });
+  }
+
+  /**
+   * Muscle metadata for the given exercise group ids.
+   *
+   * There is no muscle-report endpoint — per-muscle volume is derived by
+   * joining training records to this. Fetches only the ids actually present in
+   * the user's records rather than reusing the cached exercise library, which
+   * omits auxiliary muscles and covers a single tab.
+   *
+   * Ids are chunked at 50 for URI length. A record can reference an exercise
+   * the library no longer returns (one delisted mobility exercise was observed),
+   * so anything missing is reported back rather than silently dropped.
+   */
+  async fetchExerciseMuscles(groupIds: number[]): Promise<ExerciseMuscleStore> {
+    const CHUNK_SIZE = 50;
+    const chunks: number[][] = [];
+    for (let i = 0; i < groupIds.length; i += CHUNK_SIZE) {
+      chunks.push(groupIds.slice(i, i + CHUNK_SIZE));
+    }
+
+    const results = await Promise.all(
+      chunks.map((chunk) =>
+        this.request(
+          "GET",
+          `${this.baseUrl}/api/app/actionLibraryGroup/list?${chunk.map((id) => `ids=${id}`).join("&")}`,
+          { headers: this.getHeaders() },
+        ).then((body) => (body.data ?? []) as Record<string, unknown>[]),
+      ),
+    );
+
+    const byGroupId: Record<string, ExerciseMuscles> = {};
+    for (const group of results.flat()) {
+      const id = group.id as number;
+      if (typeof id !== "number") continue;
+
+      /*
+       * Union of primary and auxiliary. A muscle can appear in both lists (Abs
+       * does), so this must deduplicate or that exercise counts twice.
+       */
+      const names = new Set<string>();
+      for (const key of ["mainMuscleGroupList", "auxiliaryMuscleGroupList"]) {
+        for (const m of (group[key] ?? []) as Record<string, unknown>[]) {
+          const name = m?.categoryName;
+          if (typeof name === "string" && name) names.add(name);
+        }
+      }
+
+      byGroupId[String(id)] = {
+        trainingPartId2: group.trainingPartId2 as number | undefined,
+        muscles: [...names],
+      };
+    }
+
+    return {
+      byGroupId,
+      fetched_at: new Date().toISOString(),
+      unresolved: groupIds.filter((id) => !(String(id) in byGroupId)),
+    };
   }
 }

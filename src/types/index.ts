@@ -125,6 +125,27 @@ export interface WorkoutTemplatesStore {
 
 // ── App State ───────────────────────────────────────────────────
 
+/**
+ * Muscles an exercise engages, keyed by `actionLibraryGroupId`.
+ *
+ * Speediance has no muscle-report endpoint; per-muscle volume is derived by
+ * joining training records to this metadata. See docs/speediance-api.md.
+ */
+export interface ExerciseMuscles {
+  /** Body part: 11 Chest · 12 Shoulders · 13 Back · 14 Glutes · 15 Legs · 16 Arms · 17 Core. */
+  trainingPartId2?: number;
+  /** Deduplicated union of the primary and auxiliary muscle names. */
+  muscles: string[];
+}
+
+export interface ExerciseMuscleStore {
+  /** actionLibraryGroupId → muscles. */
+  byGroupId: Record<string, ExerciseMuscles>;
+  fetched_at: string;
+  /** Ids requested but not returned by the API — delisted exercises. */
+  unresolved: number[];
+}
+
 export type ModalType = "settings" | "sync" | null;
 
 /** User's theme preference. "auto" follows the OS via prefers-color-scheme. */

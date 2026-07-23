@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useApp } from "../../context/AppContext";
+import { referencedGroupIds } from "../../lib/muscle-focus";
 import { Modal } from "../layout/Modal";
 import { SpeedianceClient, AuthError, getTrainingType } from "../../api/speediance";
 import { parseFitNoteCsv } from "../../lib/fitnote-parser";
@@ -7,7 +8,7 @@ import { defaultStartDate, todayDate } from "../../lib/format";
 import type { TrainingRecord } from "../../types";
 
 export function SyncModal() {
-  const { config, setConfig, records, setRecords, templates, setTemplates, isLoggedIn, setActiveModal, showToast } = useApp();
+  const { config, setConfig, records, setRecords, templates, setTemplates, setExerciseMuscles, isLoggedIn, setActiveModal, showToast } = useApp();
 
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(todayDate);
@@ -91,6 +92,21 @@ export function SyncModal() {
         records: merged,
         last_synced: new Date().toISOString().slice(0, 19),
       });
+
+      /*
+       * Muscle metadata for whatever exercises the records reference. Best
+       * effort: failing here must not fail the record sync, since muscle focus
+       * is an extra rather than the point of syncing.
+       */
+      try {
+        const ids = referencedGroupIds({ ...records, records: merged });
+        if (ids.length > 0) {
+          setProgress("Fetching muscle data…");
+          setExerciseMuscles(await client.fetchExerciseMuscles(ids));
+        }
+      } catch {
+        // Leave whatever was cached; muscle focus degrades on its own.
+      }
 
       const parts: string[] = [];
       if (newCount > 0) parts.push(`${newCount} new`);

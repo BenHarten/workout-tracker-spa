@@ -5,6 +5,7 @@ import type {
   TrainingRecordsStore,
   WorkoutTemplatesStore,
   ExerciseLibraryStore,
+  ExerciseMuscleStore,
   ModalType,
   ResolvedTheme,
   ThemePref,
@@ -23,6 +24,9 @@ interface AppContextValue {
   setTemplates: (value: WorkoutTemplatesStore | ((prev: WorkoutTemplatesStore) => WorkoutTemplatesStore)) => void;
   exerciseLibrary: ExerciseLibraryStore | null;
   setExerciseLibrary: (value: ExerciseLibraryStore | null) => void;
+  /** Muscle metadata for exercises in the user's records; powers muscle focus. */
+  exerciseMuscles: ExerciseMuscleStore | null;
+  setExerciseMuscles: (value: ExerciseMuscleStore | null) => void;
   isLoggedIn: boolean;
   /** User preference; may be "auto". */
   themePref: ThemePref;
@@ -46,6 +50,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useLocalStorage<WorkoutTemplatesStore>("wt_workout_templates", DEFAULT_TEMPLATES);
   const [exerciseLibrary, setExerciseLibraryRaw] = useLocalStorage<ExerciseLibraryStore | null>("wt_exercise_library", null);
   const setExerciseLibrary = (value: ExerciseLibraryStore | null) => setExerciseLibraryRaw(value);
+  const [exerciseMuscles, setExerciseMusclesRaw] = useLocalStorage<ExerciseMuscleStore | null>("wt_exercise_muscles", null);
+  const setExerciseMuscles = (value: ExerciseMuscleStore | null) => setExerciseMusclesRaw(value);
   const [themePref, setThemePref] = useLocalStorage<ThemePref>(THEME_STORAGE_KEY, "auto");
   const resolvedTheme = useTheme(themePref);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -65,6 +71,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         records, setRecords,
         templates, setTemplates,
         exerciseLibrary, setExerciseLibrary,
+        exerciseMuscles, setExerciseMuscles,
         isLoggedIn: !!config.token,
         themePref, setThemePref,
         resolvedTheme,

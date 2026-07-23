@@ -7,7 +7,9 @@ import { BucketControl } from "../components/progress/BucketControl";
 import { ExerciseDetail } from "../components/progress/ExerciseDetail";
 import { Sparkline } from "../components/progress/Sparkline";
 import { TrendCard } from "../components/progress/TrendCard";
+import { MuscleFocusPanel } from "../components/progress/MuscleFocusPanel";
 import { buildExerciseMap, getExerciseSummariesFromMap } from "../lib/exercise-progress";
+import { getMuscleFocus } from "../lib/muscle-focus";
 import { useChartTheme } from "../lib/chart-theme";
 import { defaultStartDate, formatDate, formatDuration, formatVolume, todayDate } from "../lib/format";
 import {
@@ -31,7 +33,7 @@ function coverageNote(coverage: number, sessions: number): string | undefined {
 }
 
 export function ProgressPage() {
-  const { records } = useApp();
+  const { records, exerciseMuscles, setActiveModal } = useApp();
   const navigate = useNavigate();
   const { exerciseName } = useParams<{ exerciseName?: string }>();
   const isSplit = useMediaQuery(SPLIT_QUERY);
@@ -60,6 +62,13 @@ export function ProgressPage() {
     const points = bucketRecords(all, prefs.bucket, prefs.range);
     return { current, prev, points, labels: points.map((p) => p.label) };
   }, [records, prefs]);
+
+  /* Fixed 30-day window: the muscle map answers "what have I neglected lately",
+     which the page's own date range would blur. */
+  const muscleFocus = useMemo(
+    () => getMuscleFocus(records, exerciseMuscles, 30, todayDate()),
+    [records, exerciseMuscles],
+  );
 
   const filtered = useMemo(() => {
     if (!search.trim()) return summaries;
@@ -118,6 +127,12 @@ export function ProgressPage() {
           footnote={coverageNote(current.durationCoverage, current.sessions)}
         />
       </div>
+
+      <MuscleFocusPanel
+        focus={muscleFocus}
+        hasData={!!exerciseMuscles && Object.keys(exerciseMuscles.byGroupId).length > 0}
+        onSync={() => setActiveModal("sync")}
+      />
 
       <h2 className="progress-section-title">Per-exercise progress</h2>
 
