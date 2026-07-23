@@ -1,0 +1,52 @@
+/* Design tokens — palette, spacing, type, radius. */
+
+:root {
+  /* ── Palette ─────────────────────────────────────── */
+  --bg-base: #0c0c0e;
+  --bg-surface: #141416;
+  --bg-card: #1a1a1e;
+  --bg-hover: #222228;
+  --bg-elevated: #1e1e22;
+  --bg-input: #111113;
+  --border: #2a2a30;
+  --border-subtle: #1e1e24;
+
+  --text-primary: #f0efe8;
+  --text-secondary: #b8b6aa;
+  --text-muted: #6e6d65;
+  --text-faint: #3d3d38;
+
+  --accent: #d4a843;
+  --accent-dim: #a17e2f;
+  --accent-glow: rgba(212, 168, 67, 0.15);
+  --accent-hover: #e0b94f;
+
+  --danger: #c44040;
+  --success: #4a9e5c;
+  --info: #5588aa;
+
+  /* ── Spacing ─────────────────────────────────────── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* ── Type ─────────────────────────────────────────── */
+  --font-display: 'Bebas Neue', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.85rem;
+  --text-base: 0.95rem;
+  --text-lg: 1.1rem;
+  --text-xl: 1.3rem;
+  --text-2xl: 1.8rem;
+  --text-3xl: 2.4rem;
+
+  /* ── Radius ──────────────────────────────────────── */
+  --radius: 6px;
+  --radius-sm: 3px;
+  --radius-lg: 10px;
+}

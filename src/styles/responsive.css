@@ -1,0 +1,112 @@
+/* ── Responsive ──────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .data-table {
+    display: table;
+  }
+
+  .card-list {
+    display: none;
+  }
+
+  .page {
+    padding: var(--space-xl) var(--space-2xl);
+  }
+
+  .status-bar {
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .header {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .card {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .card-top {
+    gap: var(--space-md);
+  }
+
+  .card-meta {
+    gap: var(--space-md);
+    margin-top: var(--space-xs);
+  }
+
+  .detail-panel {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .ex-card {
+    padding: var(--space-md);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .ex-card-name {
+    margin-bottom: 0;
+  }
+
+  .ex-card-table {
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .modal-header {
+    padding: var(--space-lg);
+  }
+
+  .modal-body {
+    padding: var(--space-lg);
+  }
+}
+
+/* ── Utility ─────────────────────────────────────────── */
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+/* ── Passcode Gate ───────────────────────────────────── */
+
+.gate {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.gate-card {
+  width: 100%;
+  max-width: 320px;
+}
+
+.gate-title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  line-height: 1;
+}
+
+.gate-input-error {
+  border-color: var(--danger) !important;
+}
+
+.gate-error {
+  font-size: var(--text-sm);
+  color: var(--danger);
+  margin-bottom: var(--space-md);
+}
+

@@ -1,32 +1,14 @@
 import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { RecordDetail } from "./RecordDetail";
-import type { TrainingRecord } from "../../types";
-
-function groupByDate(records: TrainingRecord[]): Record<string, TrainingRecord[]> {
-  const result: Record<string, TrainingRecord[]> = {};
-  for (const r of records) {
-    if (!result[r.date]) result[r.date] = [];
-    result[r.date].push(r);
-  }
-  return result;
-}
-
-/** Returns array of day numbers (1–N) with leading nulls for weekday offset (Mon=0). */
-function getMonthCells(year: number, month: number): (number | null)[] {
-  const firstDow = new Date(year, month, 1).getDay(); // 0=Sun
-  const offset = (firstDow + 6) % 7; // convert to Mon=0
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells: (number | null)[] = Array(offset).fill(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-  return cells;
-}
-
-function toDateStr(year: number, month: number, day: number): string {
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
-
-const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+import {
+  WEEKDAY_LABELS,
+  getMonthCells,
+  groupRecordsByDate,
+  longDateLabel,
+  monthLabel as formatMonthLabel,
+  toDateStr,
+} from "../../lib/calendar";
 
 export function CalendarView() {
   const { records } = useApp();
@@ -36,13 +18,10 @@ export function CalendarView() {
   const [month, setMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const byDate = groupByDate(Object.values(records.records));
+  const byDate = groupRecordsByDate(Object.values(records.records));
   const cells = getMonthCells(year, month);
 
-  const monthLabel = new Date(year, month, 1).toLocaleDateString("de-DE", {
-    month: "long",
-    year: "numeric",
-  });
+  const monthLabel = formatMonthLabel(year, month);
 
   function prevMonth() {
     if (month === 0) { setYear((y) => y - 1); setMonth(11); }
@@ -73,7 +52,7 @@ export function CalendarView() {
       </div>
 
       <div className="calendar-grid">
-        {WEEKDAYS.map((d) => (
+        {WEEKDAY_LABELS.map((d) => (
           <div key={d} className="calendar-weekday">{d}</div>
         ))}
 
@@ -119,13 +98,7 @@ export function CalendarView() {
 
       {selectedDate && selectedRecords.length > 0 && (
         <div className="calendar-detail">
-          <div className="calendar-detail-date">
-            {new Date(selectedDate + "T00:00:00").toLocaleDateString("de-DE", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </div>
+          <div className="calendar-detail-date">{longDateLabel(selectedDate)}</div>
           {selectedRecords.map((rec, i) => (
             <div key={String(rec.id)}>
               {i > 0 && <div className="calendar-detail-divider" />}
