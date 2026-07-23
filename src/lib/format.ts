@@ -1,3 +1,5 @@
+import { dateToStr } from "./calendar";
+
 export function formatDuration(seconds: number): string {
   if (!seconds || seconds <= 0) return "—";
   const h = Math.floor(seconds / 3600);
@@ -20,12 +22,19 @@ export function formatVolume(kg: number): string {
   return `${Math.round(kg)} kg`;
 }
 
+/*
+ * Both of these previously used `toISOString().slice(0, 10)`, which returns the
+ * UTC date — so for a user east of UTC they reported yesterday between midnight
+ * and the offset, and west of UTC they reported tomorrow during the evening.
+ * dateToStr() reads the local calendar date instead.
+ */
+
 export function defaultStartDate(): string {
   const d = new Date();
   d.setDate(d.getDate() - 30);
-  return d.toISOString().slice(0, 10);
+  return dateToStr(d);
 }
 
 export function todayDate(): string {
-  return new Date().toISOString().slice(0, 10);
+  return dateToStr(new Date());
 }

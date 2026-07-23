@@ -41,6 +41,36 @@ export function toDateStr(year: number, month: number, day: number): string {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+/**
+ * A Date as a local `YYYY-MM-DD`.
+ *
+ * Never use `toISOString().slice(0, 10)` for this: that yields the UTC date,
+ * so east of UTC it returns yesterday in the small hours and west of UTC it
+ * returns tomorrow in the evening. Streaks, "this week" and "today" all hinge
+ * on this being the user's local date.
+ */
+export function dateToStr(d: Date): string {
+  return toDateStr(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/** Parse a `YYYY-MM-DD` as local midnight (not UTC). */
+export function parseDateStr(s: string): Date {
+  return new Date(s + "T00:00:00");
+}
+
+/** Shift a `YYYY-MM-DD` by whole days, staying in local time. */
+export function addDays(s: string, days: number): string {
+  const d = parseDateStr(s);
+  d.setDate(d.getDate() + days);
+  return dateToStr(d);
+}
+
+/** Monday-start date of the week containing `s`. */
+export function startOfWeek(s: string): string {
+  const d = parseDateStr(s);
+  return addDays(s, -mondayIndex(d));
+}
+
 export const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
 export function monthLabel(year: number, month: number): string {
