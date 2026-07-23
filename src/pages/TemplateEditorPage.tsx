@@ -142,7 +142,7 @@ export function TemplateEditorPage() {
       });
 
       showToast(isEdit ? "Template updated." : "Template created.", "success");
-      navigate("/templates");
+      navigate("/workouts");
     } catch (err) {
       if (err instanceof AuthError) {
         setConfig({ ...config, token: "", user_id: "" });
@@ -159,7 +159,7 @@ export function TemplateEditorPage() {
     <div className="page editor-page">
       {/* Header */}
       <div className="editor-header">
-        <button className="btn btn-ghost" onClick={() => navigate("/templates")}>← Back</button>
+        <button className="btn btn-ghost" onClick={() => navigate("/workouts")}>← Back</button>
         <input
           className="form-input editor-name-input"
           type="text"

@@ -30,8 +30,29 @@
     margin-bottom: var(--space-lg);
   }
 
-  .header {
-    padding: var(--space-md) var(--space-lg);
+  /*
+   * Sidebar becomes a permanent column. It stays `position: fixed` so it does
+   * not scroll with the content; the main region is inset to match.
+   */
+  .topbar {
+    display: none;
+  }
+
+  .sidebar {
+    width: 240px;
+    transform: none;
+    transition: none;
+    background: var(--bg-surface);
+  }
+
+  .sidebar-close {
+    display: none;
+  }
+
+  .app-main {
+    margin-left: 240px;
+    /* Without this a wide table can force the region past the viewport. */
+    min-width: 0;
   }
 
   .card {

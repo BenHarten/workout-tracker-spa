@@ -1,11 +1,13 @@
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
-import { Header } from "./components/layout/Header";
-import { BottomNav } from "./components/layout/BottomNav";
+import { AppShell } from "./components/layout/AppShell";
+import { LegacyRedirect } from "./components/layout/LegacyRedirect";
 import { ScrollToTop } from "./components/layout/ScrollToTop";
 import { Toast } from "./components/layout/Toast";
-import { RecordsPage } from "./pages/RecordsPage";
-import { TemplatesPage } from "./pages/TemplatesPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { CalendarPage } from "./pages/CalendarPage";
+import { HistoryPage } from "./pages/HistoryPage";
+import { WorkoutsPage } from "./pages/WorkoutsPage";
 import { TemplateEditorPage } from "./pages/TemplateEditorPage";
 import { ProgressPage } from "./pages/ProgressPage";
 import { ExerciseDetailPage } from "./pages/ExerciseDetailPage";
@@ -25,19 +27,42 @@ function AppInner() {
   return (
     <>
       <ScrollToTop />
-      <Header />
-      <Routes>
-        <Route path="/" element={<RecordsPage />} />
-        <Route path="/templates" element={<TemplatesPage />} />
-        <Route path="/templates/new" element={<TemplateEditorPage />} />
-        <Route path="/templates/edit/:code" element={<TemplateEditorPage />} />
-        <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/progress/:exerciseName" element={<ExerciseDetailPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <AppShell>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/workouts" element={<WorkoutsPage />} />
+          <Route path="/workouts/new" element={<TemplateEditorPage />} />
+          <Route path="/workouts/edit/:code" element={<TemplateEditorPage />} />
+          <Route path="/progress" element={<ProgressPage />} />
+          <Route path="/progress/exercise/:exerciseName" element={<ExerciseDetailPage />} />
+          <Route path="/history" element={<HistoryPage />} />
+
+          {/*
+            Legacy hash links. "/" previously showed records and now shows the
+            dashboard — an accepted change, since the dashboard links onward to
+            history. Everything else redirects.
+
+            Order matters: "/progress/:exerciseName" would otherwise swallow
+            "/progress/exercise/:exerciseName", so it must be declared after it.
+          */}
+          <Route path="/records" element={<Navigate to="/history" replace />} />
+          <Route path="/templates" element={<Navigate to="/workouts" replace />} />
+          <Route path="/templates/new" element={<Navigate to="/workouts/new" replace />} />
+          <Route
+            path="/templates/edit/:code"
+            element={<LegacyRedirect to="/workouts/edit/:code" />}
+          />
+          <Route
+            path="/progress/:exerciseName"
+            element={<LegacyRedirect to="/progress/exercise/:exerciseName" />}
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AppShell>
       <ModalContainer />
       <Toast />
-      <BottomNav />
     </>
   );
 }

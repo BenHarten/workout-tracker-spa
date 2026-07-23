@@ -544,6 +544,8 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s, opacity 0.15s;
   line-height: 1.2;
+  /* .btn is also applied to react-router Links, which would otherwise underline. */
+  text-decoration: none;
 }
 
 .btn:disabled {

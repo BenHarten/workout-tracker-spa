@@ -135,7 +135,7 @@ function TemplateActions({ template }: { template: WorkoutTemplate }) {
     <div className="tpl-actions">
       <button
         className="btn btn-ghost tpl-action-btn"
-        onClick={(e) => { e.stopPropagation(); navigate(`/templates/edit/${template.code}`); }}
+        onClick={(e) => { e.stopPropagation(); navigate(`/workouts/edit/${template.code}`); }}
         title="Edit template"
       >
         <EditIcon />
