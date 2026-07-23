@@ -161,6 +161,16 @@ export function ProgressPage() {
                         <span className="exercise-row-meta">
                           {s.sessionCount} session{s.sessionCount !== 1 ? "s" : ""} ·{" "}
                           {formatDate(s.lastPerformed)}
+                          {/* Say so when the trend ignores sessions, rather than
+                              quietly dropping them. */}
+                          {s.lightCount > 0 && (
+                            <span
+                              className="exercise-row-light"
+                              title={`${s.lightCount} lighter session${s.lightCount !== 1 ? "s" : ""} (warmup or deload) excluded from the trend`}
+                            >
+                              {" "}· {s.lightCount} light
+                            </span>
+                          )}
                         </span>
                       </span>
 

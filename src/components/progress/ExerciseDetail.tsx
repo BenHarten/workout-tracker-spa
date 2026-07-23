@@ -14,7 +14,7 @@ import { useApp } from "../../context/AppContext";
 import { getExerciseData } from "../../lib/exercise-progress";
 import { useChartTheme } from "../../lib/chart-theme";
 import { formatDate } from "../../lib/format";
-import type { ExerciseSession } from "../../lib/exercise-progress";
+import type { ExerciseSession, FormScores } from "../../lib/exercise-progress";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip);
 
@@ -56,6 +56,12 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
       return s.sets.some((set) => set.is1rmPR);
     });
 
+    /*
+     * Light sessions stay on the chart — they happened — but render hollow and
+     * muted so the dips read as warmups/deloads rather than lost strength.
+     */
+    const lightPoints = sessions.map((s) => s.isLight);
+
     return {
       labels,
       datasets: [
@@ -65,10 +71,14 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
           backgroundColor: t.accentFill,
           fill: true,
           tension: 0.3,
-          pointRadius: prPoints.map((pr) => (pr ? 6 : 3)),
-          pointBackgroundColor: prPoints.map((pr) => (pr ? t.accent : t.accentMuted)),
-          pointBorderColor: prPoints.map((pr) => (pr ? t.pointBorder : "transparent")),
-          pointBorderWidth: prPoints.map((pr) => (pr ? 2 : 0)),
+          pointRadius: prPoints.map((pr, i) => (lightPoints[i] ? 3 : pr ? 6 : 3)),
+          pointBackgroundColor: prPoints.map((pr, i) =>
+            lightPoints[i] ? t.pointBorder : pr ? t.accent : t.accentMuted,
+          ),
+          pointBorderColor: prPoints.map((pr, i) =>
+            lightPoints[i] ? t.accentMuted : pr ? t.pointBorder : "transparent",
+          ),
+          pointBorderWidth: prPoints.map((pr, i) => (lightPoints[i] || pr ? 2 : 0)),
         },
       ],
     };
@@ -88,11 +98,13 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
           callbacks: {
             label: (ctx: TooltipItem<"line">) => {
               const val = Math.round((ctx.parsed.y ?? 0) * 10) / 10;
+              const session = sessions[ctx.dataIndex];
               const isPR =
                 mode === "weight"
-                  ? sessions[ctx.dataIndex]?.sets.some((s) => s.isWeightPR)
-                  : sessions[ctx.dataIndex]?.sets.some((s) => s.is1rmPR);
-              return `${val} kg${isPR ? " ★ PR" : ""}`;
+                  ? session?.sets.some((s) => s.isWeightPR)
+                  : session?.sets.some((s) => s.is1rmPR);
+              const suffix = session?.isLight ? " · light" : isPR ? " ★ PR" : "";
+              return `${val} kg${suffix}`;
             },
           },
         },
@@ -123,12 +135,55 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
   );
 }
 
+const SCORE_PARTS: { key: keyof FormScores; label: string }[] = [
+  { key: "completion", label: "Completion" },
+  { key: "forceControl", label: "Force control" },
+  { key: "amplitudeStable", label: "Amplitude" },
+  { key: "bilateralBalance", label: "L/R balance" },
+];
+
+/** Speediance's per-set form metrics. Sub-scores are out of 5. */
+function FormScoreRow({ scores }: { scores: FormScores }) {
+  const parts = SCORE_PARTS.filter(({ key }) => scores[key] !== undefined);
+  if (parts.length === 0) return null;
+
+  return (
+    <div className="form-scores">
+      {scores.total !== undefined && (
+        <span className="form-score-total tnum" title="Sum of the sub-scores below">
+          Form {scores.total}
+        </span>
+      )}
+      {parts.map(({ key, label }) => {
+        const value = scores[key] as number;
+        return (
+          <span key={key} className="form-score" title={`${label}: ${value} of 5`}>
+            <span className="form-score-label">{label}</span>
+            <span className="form-score-bar" aria-hidden="true">
+              <span className="form-score-fill" style={{ width: `${(value / 5) * 100}%` }} />
+            </span>
+            <span className="form-score-value tnum">{value}</span>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function SessionCard({ session }: { session: ExerciseSession }) {
   return (
     <div className="card" style={{ cursor: "default" }}>
       <div className="card-top">
         <div className="card-name">{formatDate(session.date)}</div>
         <div className="card-right">
+          {session.isLight && (
+            <span
+              className="light-badge"
+              title="Markedly lighter than recent work — treated as a warmup or deload, and excluded from the trend and personal bests."
+            >
+              Light
+            </span>
+          )}
           {session.isPR && <PRBadge />}
         </div>
       </div>
@@ -144,6 +199,7 @@ function SessionCard({ session }: { session: ExerciseSession }) {
           );
         })}
       </div>
+      {session.scores && <FormScoreRow scores={session.scores} />}
     </div>
   );
 }

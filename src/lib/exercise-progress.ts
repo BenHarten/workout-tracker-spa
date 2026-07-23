@@ -15,11 +15,33 @@ export interface ExerciseSet {
   is1rmPR: boolean;
 }
 
+/** Speediance's per-exercise form metrics. Sub-scores are out of 5. */
+export interface FormScores {
+  /** Sum of the sub-scores below. */
+  total?: number;
+  completion?: number;
+  forceControl?: number;
+  amplitudeStable?: number;
+  /** Only present for unilateral exercises. */
+  bilateralBalance?: number;
+  /** Speediance's own overall rating, 1–5. */
+  rating?: number;
+}
+
 export interface ExerciseSession {
   date: string;
   recordId: string | number;
+  /** Workout this session belonged to, for disambiguating shared exercises. */
+  workoutName: string;
   sets: ExerciseSet[];
   isPR: boolean;
+  /**
+   * A markedly lighter session than recent work — a warmup, or a deload week.
+   * Excluded from trend and PR detection but still counted everywhere else,
+   * because the work genuinely happened. See markLightSessions.
+   */
+  isLight: boolean;
+  scores?: FormScores;
 }
 
 export interface ExerciseSummary {
@@ -36,6 +58,8 @@ export interface ExerciseSummary {
    * session, or the first is zero — there is no baseline to divide by.
    */
   trendPct: number | null;
+  /** Sessions excluded from the trend as warmups or deloads. */
+  lightCount: number;
 }
 
 /** How many recent sessions the inline trend line covers. */
@@ -148,11 +172,25 @@ export function buildExerciseMap(
         is1rmPR: false,
       }));
 
+      const num = (v: unknown) => (typeof v === "number" ? v : undefined);
+      const scores: FormScores = {
+        total: num(ex.score),
+        completion: num(ex.completionScore),
+        forceControl: num(ex.forceControlScore),
+        amplitudeStable: num(ex.amplitudeStableScore),
+        bilateralBalance: num(ex.bilateralBalanceScore),
+        rating: num(ex.actionRating),
+      };
+      const hasScores = Object.values(scores).some((v) => v !== undefined);
+
       const session: ExerciseSession = {
         date: record.date,
         recordId: record.id,
+        workoutName: record.name,
         sets,
         isPR: false,
+        isLight: false,
+        scores: hasScores ? scores : undefined,
       };
 
       if (!map.has(key)) {
@@ -170,11 +208,54 @@ export function buildExerciseMap(
   return map;
 }
 
+/** A session at or below this share of recent best counts as light. */
+const LIGHT_LOAD_RATIO = 0.65;
+/** How many preceding sessions establish the "recent best" reference. */
+const LIGHT_REFERENCE_WINDOW = 6;
+
+export function topSetWeight(session: ExerciseSession): number {
+  return Math.max(0, ...session.sets.map((s) => s.weight));
+}
+
+/**
+ * Flag sessions that are markedly lighter than recent work.
+ *
+ * Speediance records carry no warmup or deload marker — the same exercise on a
+ * warmup day and a working day is byte-identical apart from the load — so this
+ * is inferred: a session whose top set falls below LIGHT_LOAD_RATIO of the best
+ * of the preceding LIGHT_REFERENCE_WINDOW sessions is treated as light.
+ *
+ * A rolling reference rather than an all-time max, so a genuine long-term
+ * decline eventually re-baselines instead of flagging every later session.
+ * Bodyweight and time-based work has no load to compare, so it is never light.
+ *
+ * Being a heuristic, it is surfaced in the UI rather than applied silently.
+ */
+export function markLightSessions(sessions: ExerciseSession[]): void {
+  for (let i = 0; i < sessions.length; i++) {
+    const top = topSetWeight(sessions[i]);
+    if (top <= 0) {
+      sessions[i].isLight = false;
+      continue;
+    }
+    const start = Math.max(0, i - LIGHT_REFERENCE_WINDOW);
+    const prior = sessions.slice(start, i).map(topSetWeight).filter((w) => w > 0);
+    if (prior.length === 0) {
+      sessions[i].isLight = false; // nothing to compare against yet
+      continue;
+    }
+    const reference = Math.max(...prior);
+    sessions[i].isLight = top < reference * LIGHT_LOAD_RATIO;
+  }
+}
+
 export function detectPRs(sessions: ExerciseSession[]): void {
   let maxWeight = 0;
   let maxE1RM = 0;
 
   for (const session of sessions) {
+    // A warmup or deload cannot set a record; skip without moving the baseline.
+    if (session.isLight) continue;
     for (const set of session.sets) {
       if (set.weight > maxWeight) {
         maxWeight = set.weight;
@@ -207,6 +288,8 @@ export function getExerciseSummariesFromMap(
   const summaries: ExerciseSummary[] = [];
 
   for (const [key, { displayName, sessions }] of map) {
+    markLightSessions(sessions);
+
     let bestWeight = 0;
     let bestE1RM = 0;
     let lastPerformed = "";
@@ -219,10 +302,15 @@ export function getExerciseSummariesFromMap(
       }
     }
 
-    // Sessions are already chronological; take the tail as the recent window.
-    const recentTopSets = sessions
-      .slice(-TREND_WINDOW)
-      .map((s) => Math.max(0, ...s.sets.map((set) => set.weight)));
+    /*
+     * Trend runs over working sessions only. Mixing warmups in makes the series
+     * alternate between loads that were never meant to be compared — the reason
+     * a deadlift programmed heavy on one day and light on another read as a
+     * steep decline.
+     */
+    const working = sessions.filter((s) => !s.isLight);
+    const recentTopSets = working.slice(-TREND_WINDOW).map(topSetWeight);
+    const lightCount = sessions.length - working.length;
 
     const trendPct = computeTrendPct(recentTopSets);
 
@@ -235,6 +323,7 @@ export function getExerciseSummariesFromMap(
       bestE1RM,
       recentTopSets,
       trendPct,
+      lightCount,
     });
   }
 
@@ -249,6 +338,8 @@ export function getExerciseData(
   const map = buildExerciseMap(store);
   const entry = map.get(exerciseName.toLowerCase());
   if (!entry) return null;
+  // Order matters: PR detection skips light sessions, so classify first.
+  markLightSessions(entry.sessions);
   detectPRs(entry.sessions);
   return entry;
 }
