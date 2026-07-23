@@ -56,29 +56,48 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
       return s.sets.some((set) => set.is1rmPR);
     });
 
-    /*
-     * Light sessions stay on the chart — they happened — but render hollow and
-     * muted so the dips read as warmups/deloads rather than lost strength.
-     */
     const lightPoints = sessions.map((s) => s.isLight);
+
+    /*
+     * Two datasets rather than one.
+     *
+     * The trend line carries working sessions only, with light sessions set to
+     * null and spanGaps bridging them, so a warmup or deload no longer drags
+     * the line down — previously a 30kg warmup after 50kg working sets drew a
+     * cliff that read as lost strength. The light sessions are still plotted,
+     * as detached hollow dots, because the work did happen and hiding it would
+     * misrepresent the record.
+     */
+    const workingValues = values.map((v, i) => (lightPoints[i] ? null : v));
+    const lightValues = values.map((v, i) => (lightPoints[i] ? v : null));
 
     return {
       labels,
       datasets: [
         {
-          data: values,
+          label: "Working",
+          data: workingValues,
           borderColor: t.accent,
           backgroundColor: t.accentFill,
           fill: true,
           tension: 0.3,
-          pointRadius: prPoints.map((pr, i) => (lightPoints[i] ? 3 : pr ? 6 : 3)),
-          pointBackgroundColor: prPoints.map((pr, i) =>
-            lightPoints[i] ? t.pointBorder : pr ? t.accent : t.accentMuted,
-          ),
-          pointBorderColor: prPoints.map((pr, i) =>
-            lightPoints[i] ? t.accentMuted : pr ? t.pointBorder : "transparent",
-          ),
-          pointBorderWidth: prPoints.map((pr, i) => (lightPoints[i] || pr ? 2 : 0)),
+          spanGaps: true,
+          pointRadius: prPoints.map((pr) => (pr ? 6 : 3)),
+          pointBackgroundColor: prPoints.map((pr) => (pr ? t.accent : t.accentMuted)),
+          pointBorderColor: prPoints.map((pr) => (pr ? t.pointBorder : "transparent")),
+          pointBorderWidth: prPoints.map((pr) => (pr ? 2 : 0)),
+        },
+        {
+          label: "Light",
+          data: lightValues,
+          borderColor: "transparent",
+          backgroundColor: "transparent",
+          fill: false,
+          showLine: false,
+          pointRadius: 4,
+          pointBackgroundColor: t.pointBorder,
+          pointBorderColor: t.accentMuted,
+          pointBorderWidth: 2,
         },
       ],
     };
@@ -95,6 +114,9 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
           bodyColor: t.tooltipBody,
           borderColor: t.tooltipBorder,
           borderWidth: 1,
+          displayColors: false,
+          // Each session has a value in exactly one dataset; skip the null twin.
+          filter: (ctx: TooltipItem<"line">) => ctx.parsed.y !== null,
           callbacks: {
             label: (ctx: TooltipItem<"line">) => {
               const val = Math.round((ctx.parsed.y ?? 0) * 10) / 10;
