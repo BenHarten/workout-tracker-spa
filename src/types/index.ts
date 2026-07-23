@@ -121,6 +121,12 @@ export interface WorkoutTemplatesStore {
 
 export type ModalType = "settings" | "sync" | null;
 
+/** User's theme preference. "auto" follows the OS via prefers-color-scheme. */
+export type ThemePref = "light" | "dark" | "auto";
+
+/** The theme actually applied, after resolving "auto". */
+export type ResolvedTheme = "light" | "dark";
+
 export interface ToastState {
   message: string;
   type: "success" | "error" | "info";

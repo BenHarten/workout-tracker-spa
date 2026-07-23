@@ -16,7 +16,8 @@
 .header-logo {
   font-family: var(--font-display);
   font-size: var(--text-2xl);
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
   text-decoration: none;
   text-transform: uppercase;
@@ -35,9 +36,9 @@
 
 .nav-link {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: -0.005em;
   color: var(--text-muted);
   text-decoration: none;
   padding: var(--space-xs) var(--space-md);
@@ -172,12 +173,12 @@
 }
 
 .page-title {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-size: var(--text-3xl);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   margin-bottom: var(--space-sm);
-  line-height: 1;
+  line-height: 1.1;
 }
 

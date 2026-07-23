@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { Modal } from "../layout/Modal";
+import { ThemeToggle } from "../layout/ThemeToggle";
 import { SpeedianceClient } from "../../api/speediance";
 
 export function SettingsModal() {
@@ -50,6 +51,11 @@ export function SettingsModal() {
 
   return (
     <Modal title="Settings" onClose={() => setActiveModal(null)}>
+      {/* Moves to the sidebar footer in Phase 2. */}
+      <div className="modal-section">
+        <div className="modal-section-title">Appearance</div>
+        <ThemeToggle />
+      </div>
       {isLoggedIn ? (
         <>
           <div className="modal-section">

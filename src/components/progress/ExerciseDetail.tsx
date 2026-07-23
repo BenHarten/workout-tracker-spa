@@ -12,6 +12,7 @@ import type { TooltipItem } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { useApp } from "../../context/AppContext";
 import { getExerciseData } from "../../lib/exercise-progress";
+import { useChartTheme } from "../../lib/chart-theme";
 import { formatDate } from "../../lib/format";
 import type { ExerciseSession } from "../../lib/exercise-progress";
 
@@ -34,6 +35,9 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub: st
 }
 
 function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: ChartMode }) {
+  const { resolvedTheme } = useApp();
+  const t = useChartTheme();
+
   const chartData = useMemo(() => {
     const labels = sessions.map((s) => {
       const d = new Date(s.date + "T00:00:00");
@@ -57,20 +61,18 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
       datasets: [
         {
           data: values,
-          borderColor: "#d4a843",
-          backgroundColor: "rgba(212, 168, 67, 0.08)",
+          borderColor: t.accent,
+          backgroundColor: t.accentFill,
           fill: true,
           tension: 0.3,
           pointRadius: prPoints.map((pr) => (pr ? 6 : 3)),
-          pointBackgroundColor: prPoints.map((pr) =>
-            pr ? "#d4a843" : "rgba(212, 168, 67, 0.6)"
-          ),
-          pointBorderColor: prPoints.map((pr) => (pr ? "#0c0c0e" : "transparent")),
+          pointBackgroundColor: prPoints.map((pr) => (pr ? t.accent : t.accentMuted)),
+          pointBorderColor: prPoints.map((pr) => (pr ? t.pointBorder : "transparent")),
           pointBorderWidth: prPoints.map((pr) => (pr ? 2 : 0)),
         },
       ],
     };
-  }, [sessions, mode]);
+  }, [sessions, mode, t]);
 
   const options = useMemo(
     () => ({
@@ -78,10 +80,10 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
       maintainAspectRatio: false,
       plugins: {
         tooltip: {
-          backgroundColor: "#1e1e22",
-          titleColor: "#f0efe8",
-          bodyColor: "#b8b6aa",
-          borderColor: "#2a2a30",
+          backgroundColor: t.tooltipBg,
+          titleColor: t.tooltipTitle,
+          bodyColor: t.tooltipBody,
+          borderColor: t.tooltipBorder,
           borderWidth: 1,
           callbacks: {
             label: (ctx: TooltipItem<"line">) => {
@@ -97,25 +99,26 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
       },
       scales: {
         x: {
-          ticks: { color: "#6e6d65", font: { size: 11 } },
-          grid: { color: "#1e1e24" },
+          ticks: { color: t.tick, font: { size: 11 } },
+          grid: { color: t.grid },
         },
         y: {
           ticks: {
-            color: "#6e6d65",
+            color: t.tick,
             font: { size: 11 },
             callback: (value: string | number) => `${value} kg`,
           },
-          grid: { color: "#1e1e24" },
+          grid: { color: t.grid },
         },
       },
     }),
-    [sessions, mode]
+    [sessions, mode, t]
   );
 
   return (
     <div className="progress-chart-container">
-      <Line data={chartData} options={options} />
+      {/* Chart.js does not reliably diff nested option colours — remount on theme change. */}
+      <Line key={resolvedTheme} data={chartData} options={options} />
     </div>
   );
 }

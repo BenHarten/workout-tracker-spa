@@ -4,7 +4,28 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>LiftLog</title>
+    <script>
+      /*
+       * Theme bootstrap. Must run before first paint and stay inline/blocking,
+       * otherwise a dark-theme user sees a white flash while the bundle loads.
+       * Mirrors resolveTheme() in src/hooks/useTheme.ts — keep the storage key
+       * (wt_theme) and the values in sync with it.
+       */
+      (function () {
+        try {
+          var pref = localStorage.getItem('wt_theme');
+          pref = pref ? JSON.parse(pref) : 'auto';
+          var dark = pref === 'auto'
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            : pref === 'dark';
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
