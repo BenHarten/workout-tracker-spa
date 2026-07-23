@@ -58,6 +58,59 @@ Training type codes: `2 = course`, `5 = custom`, `6 = plan`.
 
 ---
 
+## Muscle Engagement
+
+**There is no muscle-report endpoint.** Per-muscle training volume is derived
+client-side by joining training records to exercise metadata. This was verified
+by reproducing a third-party client's published figures exactly (14/14 muscles,
+30-day window) — see "Deriving muscle volume" below.
+
+48 candidate paths under the `report/*` family were probed and all returned 404.
+Only `/api/mobile/v2/report` exists as a prefix (`/api/mobile/report`,
+`/api/mobile/v1|v3/report`, `/api/app/report`, `/api/app/v2/report` and
+`/api/report` are all absent), and `userTrainingDataRecord` is its only known
+member. An unknown path returns a plain HTTP 404, not a 200 with an error code,
+so probing is unambiguous.
+
+### Deriving muscle volume
+
+1. Each exercise entry inside a training record's `detail` carries
+   `actionLibraryGroupId` (populated on 100% of entries observed) plus its own
+   `totalCapacity` and `trainingPartId2`.
+2. `GET /api/app/actionLibraryGroup/list?ids=…` returns, per exercise group,
+   `mainMuscleGroupList[]` and `auxiliaryMuscleGroupList[]`. Each entry has
+   `configId`, `categoryName`, `trainingPartId2`, and intensity thresholds
+   (`minLowIntensity`/`maxLowIntensity`/`minMediumIntensity`/… ) — the same
+   fields that appear on exercises in template detail responses.
+3. For each exercise, credit its **full** `totalCapacity` to every muscle in the
+   union of both lists. Volume is *not* split between primary and auxiliary, so
+   the per-muscle totals sum to roughly 2.5x the session volume. A muscle can
+   appear in both lists (e.g. Abs), so the union must be deduplicated or that
+   exercise is counted twice.
+
+`trainingPartId2` groups muscles into body parts: `11` Chest · `12` Shoulders ·
+`13` Back · `14` Glutes · `15` Legs · `16` Arms · `17` Core.
+
+Muscle `configId` → name: `1` Lats · `2` Pecs · `3` Front Delts · `4` Side Delts ·
+`5` Rear Delts · `6` Biceps · `7` Triceps · `8` Quads · `9` Hamstrings ·
+`10` Glutes · `11` Abs · `12` Forearms · `13` Calves · `14` Traps ·
+`15` Adductors · `17` Back Extensors. **Note there is no 16** — never generate
+this range by loop.
+
+### Caveats
+
+- The cached `wt_exercise_library` store keeps only `mainMuscleGroupName` and
+  covers one tab/device type, so it resolved just 46 of 121 exercise entries.
+  Deriving muscle volume needs the full main + auxiliary lists fetched for the
+  `actionLibraryGroupId`s actually present in the user's records.
+- Records imported from FitNote have no `actionLibraryGroupId` and cannot
+  participate in this join.
+- Intensity thresholds are supplied per muscle but no endpoint returns a
+  computed `fatigue` or `intensityLevel`; both would have to be derived from
+  accumulated volume against those thresholds.
+
+---
+
 ## Data Models
 
 Full TypeScript definitions in `src/types/index.ts`. Key shapes:
