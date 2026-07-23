@@ -25,11 +25,6 @@
     padding: var(--space-xl) var(--space-2xl);
   }
 
-  .status-bar {
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
-  }
-
   /*
    * Sidebar becomes a permanent column. It stays `position: fixed` so it does
    * not scroll with the content; the main region is inset to match.

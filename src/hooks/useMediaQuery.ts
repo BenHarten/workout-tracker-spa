@@ -24,3 +24,9 @@ export const MOBILE_QUERY = "(max-width: 767px)";
 
 /** Wide enough to show a list and a detail pane side by side. */
 export const SPLIT_QUERY = "(min-width: 1100px)";
+
+/*
+ * CSS handles reduced motion for transitions and keyframes; this is for the
+ * animation Chart.js runs in JavaScript, which a stylesheet cannot reach.
+ */
+export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";

@@ -13,6 +13,7 @@ import { Line } from "react-chartjs-2";
 import { useApp } from "../../context/AppContext";
 import { getExerciseData } from "../../lib/exercise-progress";
 import { useChartTheme } from "../../lib/chart-theme";
+import { REDUCED_MOTION_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
 import { formatDate } from "../../lib/format";
 import type { ExerciseSession, FormScores } from "../../lib/exercise-progress";
 
@@ -37,6 +38,7 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub: st
 function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: ChartMode }) {
   const { resolvedTheme } = useApp();
   const t = useChartTheme();
+  const reducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
 
   const chartData = useMemo(() => {
     const labels = sessions.map((s) => {
@@ -107,6 +109,9 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
     () => ({
       responsive: true,
       maintainAspectRatio: false,
+      // Chart.js animates in JS, so the stylesheet's reduced-motion block
+      // cannot reach it.
+      animation: reducedMotion ? (false as const) : undefined,
       plugins: {
         tooltip: {
           backgroundColor: t.tooltipBg,
@@ -146,7 +151,7 @@ function ProgressChart({ sessions, mode }: { sessions: ExerciseSession[]; mode: 
         },
       },
     }),
-    [sessions, mode, t]
+    [sessions, mode, t, reducedMotion]
   );
 
   return (

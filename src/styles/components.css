@@ -252,7 +252,7 @@
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-faint);
+  color: var(--text-muted);
   text-align: left;
   padding: 0 0 var(--space-xs) 0;
   font-weight: 400;
@@ -293,35 +293,6 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
-}
-
-/* ── Template Detail ─────────────────────────────────── */
-
-.template-exercise {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  padding: var(--space-xs) 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.template-exercise:last-child {
-  border-bottom: none;
-}
-
-.template-exercise-name {
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  min-width: 0;
-}
-
-.template-exercise-sets {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  flex-shrink: 0;
 }
 
 /* ── Modal ───────────────────────────────────────────── */
@@ -562,9 +533,12 @@
   background: var(--accent-hover);
 }
 
+/* Same idiom as .btn-primary: --bg-base inverts with the theme, so the label
+   stays light on the dark light-theme red and dark on the lifted dark-theme
+   red. --text-primary tracks the theme the wrong way and failed AA in both. */
 .btn-danger {
   background: var(--danger);
-  color: var(--text-primary);
+  color: var(--bg-base);
 }
 
 .btn-danger:hover:not(:disabled) {

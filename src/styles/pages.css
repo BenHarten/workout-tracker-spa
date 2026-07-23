@@ -1,11 +1,5 @@
 /* ── Progress ───────────────────────────────────────── */
 
-.progress-card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .progress-search-wrap {
   position: relative;
   margin-bottom: var(--space-md);
@@ -196,34 +190,6 @@
 }
 
 /* ── View Toggle ──────────────────────────────────────── */
-
-.export-csv-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 4px 8px;
-  font-size: var(--text-xs);
-  font-family: var(--font-body);
-  transition: color 0.15s, border-color 0.15s;
-  margin-left: auto;
-}
-
-.export-csv-btn:hover:not(:disabled) {
-  color: var(--text-secondary);
-  border-color: var(--text-muted);
-}
-
-.export-csv-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.view-toggle {
-  display: flex;
-  gap: var(--space-xs);
-}
 
 .view-toggle-btn {
   background: none;
@@ -538,12 +504,6 @@
   }
 }
 /* ── Template Actions ─────────────────────────────────────── */
-
-.tpl-actions {
-  display: flex;
-  gap: var(--space-xs);
-  align-items: center;
-}
 
 .tpl-action-btn {
   padding: var(--space-xs) var(--space-sm);
@@ -1151,8 +1111,10 @@
   cursor: help;
 }
 
+/* This annotates the trend, so it has to be readable — faint is for the
+   decorative chevron and map captions, not for text that carries meaning. */
 .exercise-row-light {
-  color: var(--text-faint);
+  color: var(--text-muted);
 }
 
 .form-scores {

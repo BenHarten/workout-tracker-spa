@@ -253,26 +253,6 @@ body.nav-open {
   margin: 0 auto;
 }
 
-.status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-weight: 400;
-}
-
-.status-bar .dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--text-faint);
-}
-
 .page-title {
   font-family: var(--font-heading);
   font-size: var(--text-3xl);
