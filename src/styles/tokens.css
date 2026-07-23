@@ -96,6 +96,11 @@
   --type-course-soft: rgba(138, 92, 184, 0.12);
   --type-fitnote: #b07d2a;
   --type-fitnote-soft: rgba(176, 125, 42, 0.14);
+
+  /* Lightness stops for the workout card header band. Hue comes from the
+     workout's own code, so only the depth needs to change per theme. */
+  --wc-l1: 46%;
+  --wc-l2: 38%;
 }
 
 /* ── Dark ──────────────────────────────────────────── */
@@ -142,4 +147,7 @@
   --type-course-soft: rgba(180, 140, 224, 0.16);
   --type-fitnote: #d9a441;
   --type-fitnote-soft: rgba(217, 164, 65, 0.16);
+
+  --wc-l1: 34%;
+  --wc-l2: 26%;
 }

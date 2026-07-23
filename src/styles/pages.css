@@ -1382,3 +1382,236 @@
     align-items: start;
   }
 }
+
+/* ── Page head + filter bar (Workouts, History) ─────── */
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.page-head-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+/* Wide enough a basis that the search drops to its own row on a phone rather
+   than sharing one with the device filter and truncating its placeholder. */
+.filter-bar .progress-search-wrap {
+  flex: 1 1 260px;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.filter-bar-count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.btn-tiny {
+  padding: 3px 10px;
+  font-size: var(--text-xs);
+}
+
+/* ── Workout cards ──────────────────────────────────── */
+
+.workout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+}
+
+.workout-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.workout-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.workout-card-band {
+  position: relative;
+  padding: var(--space-sm) var(--space-md);
+  /* Hue is per-workout and set inline; lightness is per-theme. */
+  background: linear-gradient(
+    135deg,
+    hsl(var(--wc-h1) 42% var(--wc-l1)),
+    hsl(var(--wc-h2) 46% var(--wc-l2))
+  );
+  color: #fff;
+}
+
+.workout-card-check {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  display: flex;
+  cursor: pointer;
+}
+
+.workout-card-check input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  /* The band is always dark, so pin the control to a light scheme rather than
+     let it follow the OS and render as a near-black square on it. */
+  color-scheme: light;
+  accent-color: #fff;
+}
+
+.workout-card-name {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  /* Clear of the checkbox. */
+  padding-right: var(--space-lg);
+}
+
+.workout-card-meta {
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  /* On a saturated band, plain opacity beats a muted token. */
+  opacity: 0.85;
+}
+
+.workout-card-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.workout-card-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--text-xs);
+  min-width: 0;
+}
+
+.workout-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.workout-card-actions .card-expand-icon {
+  width: 14px;
+  height: 14px;
+  margin-left: 2px;
+  transition: transform var(--transition);
+}
+
+.workout-card-actions [aria-expanded="true"] .card-expand-icon {
+  transform: rotate(180deg);
+}
+
+.tpl-action-danger:hover {
+  color: var(--danger);
+}
+
+/* In the bulk bar the destructive action is a text button among peers, so it
+   has to read as destructive before hover, not on it. */
+.bulk-bar .tpl-action-danger {
+  color: var(--danger);
+}
+
+.workout-card .detail-panel {
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Bulk action bar ────────────────────────────────── */
+
+.bulk-bar {
+  position: sticky;
+  bottom: var(--space-sm);
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.bulk-bar-count {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bulk-bar-confirm {
+  flex: 1 1 100%;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* ── History type badge ─────────────────────────────── */
+
+.type-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .workout-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* An expanded card spans the row so its set tables have room. */
+  .workout-card:has(.detail-panel) {
+    grid-column: 1 / -1;
+  }
+
+  .bulk-bar-confirm {
+    flex: 0 1 auto;
+  }
+}
+
+/*
+ * History table density. Dates, durations and volumes are short atoms that
+ * read badly broken across two lines; only the workout name should wrap.
+ */
+.page .data-table td:not(.col-name),
+.page .data-table th:not(.col-name) {
+  white-space: nowrap;
+}
+
+.filter-bar {
+  align-items: flex-end;
+}

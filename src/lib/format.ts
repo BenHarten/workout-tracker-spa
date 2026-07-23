@@ -16,6 +16,17 @@ export function formatDate(dateStr: string): string {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/**
+ * Sync stamps are stored as a bare local `YYYY-MM-DDTHH:MM:SS`. Rendering that
+ * raw puts machine punctuation in a sentence, so show date + time of day.
+ */
+export function formatSyncTime(stamp: string | undefined): string {
+  if (!stamp) return "never";
+  const [date, time] = stamp.split("T");
+  if (!date) return "never";
+  return time ? `${formatDate(date)}, ${time.slice(0, 5)}` : formatDate(date);
+}
+
 export function formatVolume(kg: number): string {
   if (!kg) return "0 kg";
   if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`;

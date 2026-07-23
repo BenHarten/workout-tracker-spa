@@ -395,3 +395,9 @@
     gap: var(--space-md);
   }
 }
+
+/* Tiles without a delta chip or coverage note would otherwise reserve a blank
+   row (History uses them plain). */
+.stat-tile-foot:empty {
+  display: none;
+}

@@ -1,4 +1,4 @@
-import type { EditorExercise, EditorSet } from "../types";
+import type { EditorExercise, EditorSet, WorkoutTemplate } from "../types";
 import { CUSTOM_KG_PRESET_ID } from "../types";
 import { parsePresetList, rulesFor } from "./presets";
 
@@ -152,4 +152,42 @@ export function mapDetailToEditorExercises(
 export function csvSplit(value: string | undefined | null): string[] {
   if (!value) return [];
   return String(value).split(",").filter(Boolean);
+}
+
+/*
+ * Rough duration estimate for a template.
+ *
+ * Templates carry no duration, so this is derived from work + rest and must
+ * always be shown with a "~". Rest is the honest part — `breakTime2` is real
+ * per-set data. Work is not: a rep count says nothing about tempo, so it is
+ * priced at a flat SECONDS_PER_REP.
+ *
+ * Time-based exercises (bodyweight holds) store seconds in the same field as
+ * reps, with no weights alongside. Multiplying those by SECONDS_PER_REP would
+ * treat a 60-second plank as three minutes, so a set with no load and an
+ * implausible rep count is read as seconds instead.
+ */
+const SECONDS_PER_REP = 3;
+const DEFAULT_REST_SEC = 60;
+const REPS_AS_SECONDS_THRESHOLD = 25;
+
+export function estimateTemplateMinutes(template: WorkoutTemplate): number {
+  let seconds = 0;
+
+  for (const ex of template.exercises) {
+    const counts = csvSplit(ex.setsAndReps).map(Number);
+    const rests = csvSplit(ex.breakTime2).map(Number);
+    const hasLoad = csvSplit(ex.weights).some((w) => Number(w) > 0);
+
+    counts.forEach((count, i) => {
+      if (!Number.isFinite(count) || count <= 0) return;
+      const isDuration = !hasLoad && count >= REPS_AS_SECONDS_THRESHOLD;
+      seconds += isDuration ? count : count * SECONDS_PER_REP;
+
+      const rest = rests[i];
+      seconds += Number.isFinite(rest) && rest > 0 ? rest : DEFAULT_REST_SEC;
+    });
+  }
+
+  return seconds > 0 ? Math.max(1, Math.round(seconds / 60)) : 0;
 }
