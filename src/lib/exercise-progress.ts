@@ -29,6 +29,48 @@ export interface ExerciseSummary {
   sessionCount: number;
   bestWeight: number;
   bestE1RM: number;
+  /** Top-set weight per session, oldest first, capped to the recent window. */
+  recentTopSets: number[];
+  /**
+   * Percentage change across `recentTopSets`. null when there is only one
+   * session, or the first is zero — there is no baseline to divide by.
+   */
+  trendPct: number | null;
+}
+
+/** How many recent sessions the inline trend line covers. */
+const TREND_WINDOW = 8;
+
+function mean(xs: number[]): number {
+  return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
+}
+
+/**
+ * Direction of travel across the recent window, as a percentage.
+ *
+ * Compares the mean of the first half against the mean of the second rather
+ * than first value against last. Many programmes alternate heavy and light days
+ * for the same lift, and an endpoint comparison on that sawtooth reports a
+ * dramatic swing that reflects only which kind of day happens to sit at each
+ * end — a deadlift alternating 85/30 kg read as -64% while the actual trend was
+ * flat. Halves average that alternation out.
+ *
+ * Returns null when there is too little data, or the baseline is zero.
+ */
+export function computeTrendPct(series: number[]): number | null {
+  if (series.length < 4) {
+    // Too short to halve meaningfully; fall back to endpoints.
+    const first = series[0];
+    const last = series[series.length - 1];
+    if (series.length < 2 || !first) return null;
+    return ((last - first) / first) * 100;
+  }
+
+  const mid = Math.floor(series.length / 2);
+  const before = mean(series.slice(0, mid));
+  const after = mean(series.slice(mid));
+  if (before === 0) return null;
+  return ((after - before) / before) * 100;
 }
 
 // ── Helpers ────────────────────────────────────────────────────
@@ -149,7 +191,19 @@ export function detectPRs(sessions: ExerciseSession[]): void {
 }
 
 export function getExerciseSummaries(store: TrainingRecordsStore): ExerciseSummary[] {
-  const map = buildExerciseMap(store);
+  return getExerciseSummariesFromMap(buildExerciseMap(store));
+}
+
+/**
+ * Summaries from an already-built map.
+ *
+ * buildExerciseMap walks every record and every exercise within it, so pages
+ * that need both the map and the summaries should build once and call this
+ * rather than paying for a second full traversal.
+ */
+export function getExerciseSummariesFromMap(
+  map: Map<string, { displayName: string; sessions: ExerciseSession[] }>,
+): ExerciseSummary[] {
   const summaries: ExerciseSummary[] = [];
 
   for (const [key, { displayName, sessions }] of map) {
@@ -165,6 +219,13 @@ export function getExerciseSummaries(store: TrainingRecordsStore): ExerciseSumma
       }
     }
 
+    // Sessions are already chronological; take the tail as the recent window.
+    const recentTopSets = sessions
+      .slice(-TREND_WINDOW)
+      .map((s) => Math.max(0, ...s.sets.map((set) => set.weight)));
+
+    const trendPct = computeTrendPct(recentTopSets);
+
     summaries.push({
       name: key,
       displayName,
@@ -172,6 +233,8 @@ export function getExerciseSummaries(store: TrainingRecordsStore): ExerciseSumma
       sessionCount: sessions.length,
       bestWeight,
       bestE1RM,
+      recentTopSets,
+      trendPct,
     });
   }
 

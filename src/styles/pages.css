@@ -907,3 +907,229 @@
   color: var(--text-secondary);
   line-height: 1.4;
 }
+
+/* ── Progress: controls & trends ───────────────────────── */
+
+.bucket-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 3px;
+}
+
+.segmented .view-toggle-btn {
+  border: none;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.segmented .view-toggle-btn.active {
+  background: var(--accent);
+  color: var(--bg-card);
+  border-color: transparent;
+}
+
+.bucket-dates {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.bucket-date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.bucket-date input {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-sm);
+}
+
+.trend-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.trend-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+
+.trend-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.trend-card-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: var(--space-sm);
+}
+
+.trend-card-footnote,
+.trend-card-nodata {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-xs);
+}
+
+.trend-card-nodata {
+  padding: var(--space-lg) 0;
+  text-align: center;
+}
+
+.sparkline {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── Progress: per-exercise list ───────────────────────── */
+
+.progress-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.progress-list-pane {
+  min-width: 0;
+}
+
+.exercise-rows {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exercise-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  background: var(--bg-card);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.exercise-rows li:first-child .exercise-row {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.exercise-rows li:last-child .exercise-row {
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.exercise-rows li:only-child .exercise-row {
+  border-radius: var(--radius-lg);
+}
+
+.exercise-row:hover {
+  background: var(--bg-hover);
+}
+
+.exercise-row.active {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.exercise-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.exercise-row-name {
+  display: block;
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exercise-row-meta {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+  /* Keeps "N sessions · 22 Jul 2026" on one line so rows stay uniform. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hidden on narrow screens: the row has no room for a chart. */
+.exercise-row-spark {
+  display: none;
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.exercise-row-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.exercise-row-best {
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+
+@media (min-width: 560px) {
+  .exercise-row-spark {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .trend-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .progress-split {
+    grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  }
+
+  .progress-detail-pane {
+    min-width: 0;
+  }
+}

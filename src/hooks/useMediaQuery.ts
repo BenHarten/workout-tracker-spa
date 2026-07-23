@@ -21,3 +21,6 @@ export function useMediaQuery(query: string): boolean {
 
 /** True below the app's single 768px breakpoint. */
 export const MOBILE_QUERY = "(max-width: 767px)";
+
+/** Wide enough to show a list and a detail pane side by side. */
+export const SPLIT_QUERY = "(min-width: 1100px)";

@@ -10,7 +10,7 @@ import { HistoryPage } from "./pages/HistoryPage";
 import { WorkoutsPage } from "./pages/WorkoutsPage";
 import { TemplateEditorPage } from "./pages/TemplateEditorPage";
 import { ProgressPage } from "./pages/ProgressPage";
-import { ExerciseDetailPage } from "./pages/ExerciseDetailPage";
+import { ExerciseRoute } from "./pages/ExerciseRoute";
 import { SettingsModal } from "./components/settings/SettingsModal";
 import { SyncModal } from "./components/sync/SyncModal";
 import { PasscodeGate } from "./components/auth/PasscodeGate";
@@ -35,7 +35,7 @@ function AppInner() {
           <Route path="/workouts/new" element={<TemplateEditorPage />} />
           <Route path="/workouts/edit/:code" element={<TemplateEditorPage />} />
           <Route path="/progress" element={<ProgressPage />} />
-          <Route path="/progress/exercise/:exerciseName" element={<ExerciseDetailPage />} />
+          <Route path="/progress/exercise/:exerciseName" element={<ExerciseRoute />} />
           <Route path="/history" element={<HistoryPage />} />
 
           {/*
