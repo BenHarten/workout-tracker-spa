@@ -99,15 +99,26 @@ this range by loop.
 
 ### Caveats
 
-- The cached `wt_exercise_library` store keeps only `mainMuscleGroupName` and
-  covers one tab/device type, so it resolved just 46 of 121 exercise entries.
-  Deriving muscle volume needs the full main + auxiliary lists fetched for the
-  `actionLibraryGroupId`s actually present in the user's records.
+- Do **not** use the cached `wt_exercise_library` store for this. It keeps only
+  `mainMuscleGroupName` (no auxiliary list) and covers a single tab/device type,
+  resolving roughly 30% of exercise entries. Fetch
+  `actionLibraryGroup/list` for the `actionLibraryGroupId`s actually present in
+  the records instead — that resolved 58 of 59 across 80 records, and 100% of
+  those inside the verification window.
+- Chunk `ids` at 50 per request (URI length). 59 ids needs two calls.
+- **Delisted exercises.** A record can reference an exercise the library no
+  longer returns: id `167` "Spinal Rocking" is absent from `list`, and
+  `actionLibraryGroup/167` answers `code: 0` with an empty `data`. Fall back to
+  the record's own `trainingPartId2`, which is always present, to attribute it
+  to a body part even when the specific muscles are unknown. In practice such
+  exercises are mobility work with `countType: 2` and zero `totalCapacity`, so
+  they contribute nothing to volume regardless.
 - Records imported from FitNote have no `actionLibraryGroupId` and cannot
   participate in this join.
 - Intensity thresholds are supplied per muscle but no endpoint returns a
   computed `fatigue` or `intensityLevel`; both would have to be derived from
-  accumulated volume against those thresholds.
+  accumulated volume against those thresholds, and should be presented as the
+  app's own estimate rather than a Speediance measurement.
 
 ---
 
