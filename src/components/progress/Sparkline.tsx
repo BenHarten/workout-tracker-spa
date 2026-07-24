@@ -50,8 +50,12 @@ export function Sparkline({ values, labels, format, colour, bare = false, height
           backgroundColor: colour ? "transparent" : t.accentFill,
           borderWidth: 2,
           fill: !colour,
-          tension: 0.35,
-          pointRadius: 0,
+          // Straight segments between measured points — no interpolation.
+          tension: 0,
+          // Show the points on the full-size trend cards; keep the tiny inline
+          // exercise-row variant (bare) dot-free.
+          pointRadius: bare ? 0 : 2.5,
+          pointBackgroundColor: stroke,
           pointHoverRadius: bare ? 0 : 4,
           pointHoverBackgroundColor: stroke,
         },

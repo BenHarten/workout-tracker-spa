@@ -7,21 +7,12 @@ import { downloadTemplatesCSV } from "../lib/export";
 import { formatSyncTime } from "../lib/format";
 import type { WorkoutTemplate } from "../types";
 
-type DeviceFilter = "all" | "1" | "2";
-
-const DEVICES: { value: DeviceFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "1", label: "Gym Monster" },
-  { value: "2", label: "Gym Pal" },
-];
-
 export function WorkoutsPage() {
   const { templates, showToast } = useApp();
   const navigate = useNavigate();
   const { deleteOne, handleError } = useDeleteTemplate();
 
   const [search, setSearch] = useState("");
-  const [device, setDevice] = useState<DeviceFilter>("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [confirmBulk, setConfirmBulk] = useState(false);
@@ -33,15 +24,14 @@ export function WorkoutsPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    if (!q) return all;
     return all.filter((t) => {
-      if (device !== "all" && String(t.device_type) !== device) return false;
-      if (!q) return true;
       if (t.name.toLowerCase().includes(q)) return true;
       // Searching exercise names is the only way to find "the workout with
       // the hip thrust in it", which is how people actually look for these.
       return (t.exercises ?? []).some((ex) => ex.title?.toLowerCase().includes(q));
     });
-  }, [all, search, device]);
+  }, [all, search]);
 
   /* Selecting a workout then filtering it away would otherwise leave it in a
      bulk action the user can no longer see. */
@@ -139,19 +129,6 @@ export function WorkoutsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
-
-          <div className="segmented" role="group" aria-label="Filter by device">
-            {DEVICES.map((d) => (
-              <button
-                key={d.value}
-                className={`view-toggle-btn${device === d.value ? " active" : ""}`}
-                onClick={() => setDevice(d.value)}
-                aria-pressed={device === d.value}
-              >
-                {d.label}
-              </button>
-            ))}
           </div>
         </div>
       )}

@@ -5,7 +5,7 @@ import { Modal } from "../layout/Modal";
 import { SpeedianceClient, AuthError, getTrainingType } from "../../api/speediance";
 import { parseFitNoteCsv } from "../../lib/fitnote-parser";
 import { defaultStartDate, todayDate } from "../../lib/format";
-import type { TrainingRecord } from "../../types";
+import type { TrainingRecord, WorkoutTemplate } from "../../types";
 
 export function SyncModal() {
   const { config, setConfig, records, setRecords, templates, setTemplates, setExerciseMuscles, isLoggedIn, setActiveModal, showToast } = useApp();
@@ -129,7 +129,15 @@ export function SyncModal() {
     try {
       const client = new SpeedianceClient(config);
       const workouts = await client.getUserWorkouts();
-      const merged = { ...templates.templates };
+      /*
+       * Templates mirror the server: a workout deleted in the official app must
+       * disappear here, so this is built fresh from the server list rather than
+       * merged onto the cache. (Records are the opposite — history is additive
+       * and handleSyncRecords keeps merging.) If a detail fetch fails for a
+       * workout that IS on the server, the cached entry is kept so a transient
+       * error does not blank a template that still exists.
+       */
+      const merged: Record<string, WorkoutTemplate> = {};
 
       for (let i = 0; i < workouts.length; i++) {
         const wkt = workouts[i] as Record<string, unknown>;
@@ -137,7 +145,11 @@ export function SyncModal() {
         if (!code) continue;
 
         const detail = await client.getWorkoutDetail(code);
-        if (!detail) continue;
+        if (!detail) {
+          const cached = templates.templates[code];
+          if (cached) merged[code] = cached;
+          continue;
+        }
 
         const exercises = (detail.actionLibraryList ?? []) as Record<string, unknown>[];
 
