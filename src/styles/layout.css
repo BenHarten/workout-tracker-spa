@@ -263,3 +263,51 @@ body.nav-open {
   line-height: 1.1;
 }
 
+
+/* ── Error boundary (last-resort recovery screen) ──── */
+
+.error-boundary {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: var(--bg-base);
+}
+
+.error-boundary-card {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.error-boundary-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.error-boundary-text {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--space-md);
+}
+
+.error-boundary-detail {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  word-break: break-word;
+}

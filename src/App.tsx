@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
 import { AppShell } from "./components/layout/AppShell";
+import { ErrorBoundary } from "./components/layout/ErrorBoundary";
 import { LegacyRedirect } from "./components/layout/LegacyRedirect";
 import { ScrollToTop } from "./components/layout/ScrollToTop";
 import { Toast } from "./components/layout/Toast";
@@ -69,12 +70,14 @@ function AppInner() {
 
 export default function App() {
   return (
-    <PasscodeGate>
-      <AppProvider>
-        <HashRouter>
-          <AppInner />
-        </HashRouter>
-      </AppProvider>
-    </PasscodeGate>
+    <ErrorBoundary>
+      <PasscodeGate>
+        <AppProvider>
+          <HashRouter>
+            <AppInner />
+          </HashRouter>
+        </AppProvider>
+      </PasscodeGate>
+    </ErrorBoundary>
   );
 }

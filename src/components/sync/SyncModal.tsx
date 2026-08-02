@@ -7,6 +7,21 @@ import { parseFitNoteCsv } from "../../lib/fitnote-parser";
 import { defaultStartDate, todayDate } from "../../lib/format";
 import type { TrainingRecord, WorkoutTemplate } from "../../types";
 
+/**
+ * localStorage.setItem throws this when the browser's storage budget is full —
+ * common on mobile Safari, whose quota is much smaller than desktop's, and
+ * always in Safari private mode. The name/code vary across engines.
+ */
+function isQuotaError(err: unknown): boolean {
+  return (
+    err instanceof DOMException &&
+    (err.name === "QuotaExceededError" ||
+      err.name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+      err.code === 22 ||
+      err.code === 1014)
+  );
+}
+
 export function SyncModal() {
   const { config, setConfig, records, setRecords, templates, setTemplates, setExerciseMuscles, isLoggedIn, setActiveModal, showToast } = useApp();
 
@@ -212,7 +227,14 @@ export function SyncModal() {
       showToast(`Imported ${count} FitNote session${count !== 1 ? "s" : ""}.`, "success");
       if (fileRef.current) fileRef.current.value = "";
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Import failed", "error");
+      if (isQuotaError(err)) {
+        showToast(
+          "Couldn't save the import — this device's browser storage is full. Try a smaller date range, or remove old data first.",
+          "error",
+        );
+      } else {
+        showToast(err instanceof Error ? err.message : "Import failed", "error");
+      }
     } finally {
       setImporting(false);
     }
