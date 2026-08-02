@@ -311,3 +311,12 @@ body.nav-open {
   margin-bottom: var(--space-lg);
   word-break: break-word;
 }
+
+/* Hydration hold while IndexedDB-backed stores load. */
+.app-loading {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+}
