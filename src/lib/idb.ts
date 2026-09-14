@@ -15,6 +15,19 @@ const DB_NAME = "liftlog";
 const STORE = "keyval";
 const VERSION = 1;
 
+// Without this, the browser treats the origin's storage as "best-effort" and
+// may evict it under storage pressure or after a period without a visit —
+// Chromium (including Brave) does this via LRU eviction across origins, and
+// Safari applies a flat 7-day cap. This is why the bulk stores could vanish
+// every few days after the move off localStorage: localStorage isn't subject
+// to the same eviction. persist() is a request, not a guarantee — the browser
+// may still decline it (e.g. Brave Shields, low overall disk space) — so this
+// reduces the risk rather than eliminating it. Fire-and-forget: nothing here
+// blocks app startup, and there's no useful action to take if it's declined.
+if (typeof navigator !== "undefined" && navigator.storage?.persist) {
+  navigator.storage.persist().catch(() => {});
+}
+
 // Resolves to the database, or to null if IndexedDB cannot be opened at all
 // (e.g. some locked-down privacy modes). Computed once. When null, every call
 // falls back to localStorage so the app still runs.
