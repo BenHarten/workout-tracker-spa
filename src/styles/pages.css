@@ -354,11 +354,18 @@
   padding: 0 var(--space-sm) var(--space-md);
 }
 
-.calendar-empty {
+.agenda-row-rest {
+  cursor: default;
+}
+
+.agenda-day-rest .agenda-weekday,
+.agenda-day-rest .agenda-daynum {
+  color: var(--text-muted);
+}
+
+.agenda-rest-label {
   color: var(--text-muted);
   font-size: var(--text-sm);
-  padding: var(--space-lg) var(--space-sm);
-  text-align: center;
 }
 
 /* ── Legend ────────────────────────────────────────────── */

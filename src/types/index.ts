@@ -11,7 +11,7 @@ export interface Config {
   weekly_goal?: number;
 }
 
-export const DEFAULT_WEEKLY_GOAL = 3;
+export const DEFAULT_WEEKLY_GOAL = 4;
 
 export const DEFAULT_CONFIG: Config = {
   user_id: "",

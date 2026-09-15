@@ -16,8 +16,9 @@ interface Props {
 /**
  * Vertical day list — the mobile calendar, and an optional desktop view.
  *
- * Only days with workouts are listed. A month of mostly-empty rows is noise,
- * and with no scheduling model there is nothing to add to an empty day.
+ * Every day in the month is listed, workout or not, so a glance down the
+ * list shows training gaps as well as sessions. Rest days render as a
+ * muted, non-interactive row — there is nothing to expand.
  */
 export function CalendarAgenda({ year, month, byDate, selectedDate, today, onSelect }: Props) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -25,16 +26,7 @@ export function CalendarAgenda({ year, month, byDate, selectedDate, today, onSel
   const days: { date: string; recs: TrainingRecord[] }[] = [];
   for (let d = 1; d <= daysInMonth; d++) {
     const date = toDateStr(year, month, d);
-    const recs = byDate[date];
-    if (recs?.length) days.push({ date, recs });
-  }
-
-  if (days.length === 0) {
-    return (
-      <div className="calendar-agenda">
-        <p className="calendar-empty">No workouts logged this month.</p>
-      </div>
-    );
+    days.push({ date, recs: byDate[date] ?? [] });
   }
 
   return (
@@ -42,7 +34,31 @@ export function CalendarAgenda({ year, month, byDate, selectedDate, today, onSel
       {days.map(({ date, recs }) => {
         const d = parseDateStr(date);
         const selected = selectedDate === date;
+        const hasWorkouts = recs.length > 0;
         const volume = recs.reduce((sum, r) => sum + (r.capacity || 0), 0);
+
+        const dateLabel = (
+          <span className="agenda-date">
+            <span className="agenda-weekday">
+              {d.toLocaleDateString("en-GB", { weekday: "short" })}
+            </span>
+            <span className="agenda-daynum tnum">{d.getDate()}</span>
+          </span>
+        );
+
+        if (!hasWorkouts) {
+          return (
+            <div
+              key={date}
+              className={`agenda-day agenda-day-rest${date === today ? " is-today" : ""}`}
+            >
+              <div className="agenda-row agenda-row-rest">
+                {dateLabel}
+                <span className="agenda-rest-label">No workout</span>
+              </div>
+            </div>
+          );
+        }
 
         return (
           <div key={date} className={`agenda-day${date === today ? " is-today" : ""}`}>
@@ -52,12 +68,7 @@ export function CalendarAgenda({ year, month, byDate, selectedDate, today, onSel
               onClick={() => onSelect(date)}
               aria-expanded={selected}
             >
-              <span className="agenda-date">
-                <span className="agenda-weekday">
-                  {d.toLocaleDateString("en-GB", { weekday: "short" })}
-                </span>
-                <span className="agenda-daynum tnum">{d.getDate()}</span>
-              </span>
+              {dateLabel}
               <span className="agenda-pills">
                 {recs.map((r) => (
                   <span key={String(r.id)} className={`calendar-pill pill-${typeClass(r.type)}`}>

@@ -6,14 +6,13 @@ import { GoalRing } from "../components/dashboard/GoalRing";
 import { PRBanner } from "../components/dashboard/PRBanner";
 import { RecentSessions } from "../components/dashboard/RecentSessions";
 import { StatTile } from "../components/dashboard/StatTile";
-import { CalendarIcon, FlameIcon, HistoryIcon, WorkoutsIcon } from "../components/layout/NavIcons";
+import { CalendarIcon, HistoryIcon } from "../components/layout/NavIcons";
 import { formatDuration, formatVolume, todayDate } from "../lib/format";
-import { parseDateStr } from "../lib/calendar";
+import { addDays, parseDateStr } from "../lib/calendar";
 import {
   aggregate,
   allRecords,
   computeDelta,
-  computeStreak,
   currentPeriodRange,
   previousRange,
   recentPRs,
@@ -43,11 +42,17 @@ export function DashboardPage() {
     const thisWeek = aggregate(recordsInRange(all, week));
     const lastWeek = aggregate(recordsInRange(all, prev));
 
+    const last7 = { from: addDays(today, -6), to: today };
+    const prev7 = previousRange(last7);
+    const thisLast7 = aggregate(recordsInRange(all, last7));
+    const prevLast7 = aggregate(recordsInRange(all, prev7));
+
     return {
       total: all.length,
       thisWeek,
       lastWeek,
-      streak: computeStreak(records, today),
+      thisLast7,
+      prevLast7,
       prs: recentPRs(records, 7, today),
       recent: recentSessions(records, 5),
       goalProgress: weeklyGoalProgress(records, goal, today),
@@ -79,7 +84,7 @@ export function DashboardPage() {
     );
   }
 
-  const { thisWeek, lastWeek, streak, goalProgress, loggedToday } = data;
+  const { thisWeek, lastWeek, thisLast7, prevLast7, goalProgress, loggedToday } = data;
 
   return (
     <div className="page">
@@ -90,25 +95,11 @@ export function DashboardPage() {
 
       <div className="stat-tiles">
         <StatTile
-          label="Streak"
-          value={String(streak.current)}
-          unit={streak.current === 1 ? "day" : "days"}
-          icon={<FlameIcon />}
-          tone={streak.current > 0 ? "success" : "accent"}
-          footnote={streak.longest > 0 ? `best ${streak.longest}` : undefined}
-        />
-        <StatTile
           label="Sessions"
-          value={String(thisWeek.sessions)}
-          unit="this wk"
+          value={String(thisLast7.sessions)}
+          unit="last 7d"
           icon={<CalendarIcon />}
-          chip={<DeltaChip delta={computeDelta(thisWeek.sessions, lastWeek.sessions)} />}
-        />
-        <StatTile
-          label="Volume"
-          value={formatVolume(thisWeek.volumeKg)}
-          icon={<WorkoutsIcon />}
-          chip={<DeltaChip delta={computeDelta(thisWeek.volumeKg, lastWeek.volumeKg)} />}
+          chip={<DeltaChip delta={computeDelta(thisLast7.sessions, prevLast7.sessions)} />}
         />
         <StatTile
           label="Time"
