@@ -25,16 +25,22 @@ export function CalendarPage() {
     [records],
   );
 
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+
   /* Scoped to the month on screen — legending a colour that is not visible is
      worse than no legend. */
   const presentTypes = useMemo(() => {
-    const prefix = `${year}-${String(month + 1).padStart(2, "0")}`;
     const set = new Set<string>();
     for (const r of Object.values(records.records)) {
-      if (r.date.startsWith(prefix)) set.add(typeClass(r.type));
+      if (r.date.startsWith(monthPrefix)) set.add(typeClass(r.type));
     }
     return set;
-  }, [records, year, month]);
+  }, [records, monthPrefix]);
+
+  const monthWorkoutCount = useMemo(
+    () => Object.values(records.records).filter((r) => r.date.startsWith(monthPrefix)).length,
+    [records, monthPrefix],
+  );
 
   function step(delta: number) {
     const d = new Date(year, month + delta, 1);
@@ -51,7 +57,9 @@ export function CalendarPage() {
   return (
     <div className="page">
       <h1 className="page-title">Calendar</h1>
-      <p className="page-subtitle">Your training month at a glance</p>
+      <p className="page-subtitle">
+        {monthWorkoutCount} workout{monthWorkoutCount === 1 ? "" : "s"} this month
+      </p>
 
       <div className={`calendar calendar--${view}`}>
         <div className="calendar-header">

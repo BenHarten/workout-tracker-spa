@@ -54,7 +54,7 @@ export function CalendarAgenda({ year, month, byDate, selectedDate, today, onSel
             >
               <div className="agenda-row agenda-row-rest">
                 {dateLabel}
-                <span className="agenda-rest-label">No workout</span>
+                <span className="agenda-rest-label">–</span>
               </div>
             </div>
           );
